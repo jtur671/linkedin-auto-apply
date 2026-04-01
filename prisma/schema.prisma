@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Job {
+  id            Int      @id @default(autoincrement())
+  linkedinJobId String   @unique
+  title         String
+  company       String
+  location      String
+  url           String
+  status        String
+  skipReason    String?
+  appliedAt     DateTime @default(now())
+  searchQuery   String
+  createdAt     DateTime @default(now())
+}
+
+model SearchConfig {
+  id               Int      @id @default(autoincrement())
+  keywords         String
+  location         String
+  remotePreference String   @default("any")
+  experienceLevel  String   @default("senior")
+  datePosted       String   @default("past_24_hours")
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+}
+
+model ProfileAnswer {
+  id         Int      @id @default(autoincrement())
+  fieldLabel String
+  fieldType  String
+  answer     String
+  createdAt  DateTime @default(now())
+}
+
+model Credential {
+  id              Int    @id @default(autoincrement())
+  email           String
+  password        String
+  encryptionCheck String
+}
+
+model AutomationLog {
+  id         Int      @id @default(autoincrement())
+  timestamp  DateTime @default(now())
+  action     String
+  jobId      String?
+  jobTitle   String?
+  company    String?
+  jobUrl     String?
+  reason     String?
+  details    String?
+  screenshot String?
+  durationMs Int?
+}
