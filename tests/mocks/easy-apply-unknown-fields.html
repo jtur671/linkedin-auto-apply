@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html><body>
+  <button class="jobs-apply-button">Easy Apply</button>
+  <div id="modal" style="display:none">
+    <div class="jobs-easy-apply-form-section__grouping">
+      <label>Describe your testing philosophy</label>
+      <textarea required aria-required="true"></textarea>
+    </div>
+    <button aria-label="Submit application">Submit</button>
+  </div>
+  <script>document.querySelector('.jobs-apply-button').onclick=function(){document.getElementById('modal').style.display='block'};</script>
+</body></html>

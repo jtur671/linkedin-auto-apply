@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html><body>
+  <button class="jobs-apply-button">Easy Apply</button>
+  <div id="modal" style="display:none">
+    <div id="s1"><div class="jobs-easy-apply-form-section__grouping"><label>Phone</label><input type="text" required aria-required="true" /></div><button aria-label="Continue to next step">Next</button></div>
+    <div id="s2" style="display:none"><div class="jobs-easy-apply-form-section__grouping"><label>Years of experience</label><select required><option value="">Select</option><option>1-3</option><option>4-6</option><option>7-9</option><option>10+</option></select></div><button aria-label="Submit application">Submit</button></div>
+  </div>
+  <script>
+    document.querySelector('.jobs-apply-button').onclick=function(){document.getElementById('modal').style.display='block'};
+    document.querySelector('[aria-label="Continue to next step"]').onclick=function(){document.getElementById('s1').style.display='none';document.getElementById('s2').style.display='block'};
+  </script>
+</body></html>
