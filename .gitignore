@@ -43,7 +43,9 @@ next-env.d.ts
 # App-specific
 cookies/
 logs/
+!src/app/api/logs/
 screenshots/
+!src/lib/automation/screenshot.ts
 .env
 prisma/dev.db
 prisma/dev.db-journal
