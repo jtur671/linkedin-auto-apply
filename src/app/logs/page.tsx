@@ -25,7 +25,7 @@ export default function LogsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold">Logs</h2>
+        <h2 className="text-3xl font-bold">Automation Logs</h2>
         <span className="text-sm text-muted-foreground">{logs.length} entries</span>
       </div>
       <LogFilters action={action} onActionChange={setAction} onExport={handleExport} />
