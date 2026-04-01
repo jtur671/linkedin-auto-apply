@@ -47,7 +47,7 @@ export function ProfileAnswersForm({ answers, onRefresh }: { answers: ProfileAns
             </div>
             <div className="space-y-2">
               <Label>Field Type</Label>
-              <Select value={fieldType} onValueChange={setFieldType}>
+              <Select value={fieldType} onValueChange={(v) => { if (v !== null) setFieldType(v); }}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="text">Text</SelectItem>

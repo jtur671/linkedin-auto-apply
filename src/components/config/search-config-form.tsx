@@ -55,7 +55,7 @@ export function SearchConfigForm({ configs, onRefresh }: { configs: SearchConfig
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label>Remote</Label>
-              <Select value={remotePreference} onValueChange={setRemotePreference}>
+              <Select value={remotePreference} onValueChange={(v) => { if (v !== null) setRemotePreference(v); }}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="any">Any</SelectItem>
@@ -67,7 +67,7 @@ export function SearchConfigForm({ configs, onRefresh }: { configs: SearchConfig
             </div>
             <div className="space-y-2">
               <Label>Experience</Label>
-              <Select value={experienceLevel} onValueChange={setExperienceLevel}>
+              <Select value={experienceLevel} onValueChange={(v) => { if (v !== null) setExperienceLevel(v); }}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="entry">Entry</SelectItem>
@@ -78,7 +78,7 @@ export function SearchConfigForm({ configs, onRefresh }: { configs: SearchConfig
             </div>
             <div className="space-y-2">
               <Label>Date Posted</Label>
-              <Select value={datePosted} onValueChange={setDatePosted}>
+              <Select value={datePosted} onValueChange={(v) => { if (v !== null) setDatePosted(v); }}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="past_24_hours">Past 24 hours</SelectItem>

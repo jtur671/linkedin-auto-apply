@@ -6,7 +6,7 @@ export function JobFilters({ search, status, onSearchChange, onStatusChange }: {
   return (
     <div className="flex gap-4">
       <Input placeholder="Search jobs..." value={search} onChange={e => onSearchChange(e.target.value)} className="max-w-sm" />
-      <Select value={status} onValueChange={onStatusChange}>
+      <Select value={status} onValueChange={(v) => { if (v !== null) onStatusChange(v); }}>
         <SelectTrigger className="w-[180px]"><SelectValue placeholder="All statuses" /></SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All statuses</SelectItem>

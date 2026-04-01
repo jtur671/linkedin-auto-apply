@@ -20,7 +20,7 @@ const ACTION_OPTIONS = [
 export function LogFilters({ action, onActionChange, onExport }: { action: string; onActionChange: (v: string) => void; onExport: () => void }) {
   return (
     <div className="flex items-center gap-4">
-      <Select value={action} onValueChange={onActionChange}>
+      <Select value={action} onValueChange={(v) => { if (v !== null) onActionChange(v); }}>
         <SelectTrigger className="w-[200px]"><SelectValue placeholder="All actions" /></SelectTrigger>
         <SelectContent>
           {ACTION_OPTIONS.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
