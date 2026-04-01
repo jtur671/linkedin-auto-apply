@@ -44,6 +44,8 @@ next-env.d.ts
 cookies/
 logs/
 !src/app/api/logs/
+!src/app/logs/
+!src/components/logs/
 screenshots/
 !src/lib/automation/screenshot.ts
 .env
