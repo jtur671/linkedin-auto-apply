@@ -4,7 +4,36 @@
 
 A web application that automatically applies to LinkedIn "Easy Apply" jobs matching configured search criteria. Built as a Next.js app with Playwright browser automation, SQLite storage, and a real-time dashboard for tracking applications.
 
-**Target user:** Senior QA Automation Engineer who also does front-end development work. Searches for roles like QA Automation Engineer, SDET, Front End Developer.
+**Target user:** Senior QA Automation Engineer who also does front-end development work.
+
+**Default search keywords (configurable):**
+- QA Engineer
+- Quality Assurance Engineer
+- Test Automation Engineer
+- Automation Engineer
+- SDET
+- Software Development Engineer in Test
+- Software Test Engineer
+- QA Lead
+- Senior Test Engineer
+- Front End Developer
+- Front End Engineer
+- UI Developer
+- React Developer
+- JavaScript Developer
+- Web Developer
+- AI Engineer
+- Prompt Engineer
+- AI QA Engineer
+- Machine Learning QA Engineer
+- Software Engineer in Test
+- DevOps Test Engineer
+- CI/CD Engineer
+- Release Engineer
+- Tools Engineer
+- Mobile Engineer
+
+**Resume/portfolio website:** https://jason-tur.com/ (used as a profile answer when forms ask for a website or portfolio URL)
 
 ## Tech Stack
 
