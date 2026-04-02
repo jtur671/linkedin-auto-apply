@@ -1,4 +1,4 @@
-import { Page, ElementHandle } from "playwright";
+import { Page } from "playwright";
 import { matchField, ProfileAnswerRecord } from "@/lib/field-matcher";
 import { findBestOption } from "@/lib/automation/dropdown-handler";
 
@@ -7,100 +7,193 @@ export interface FillResult {
   unfilledFields: Array<{ label: string; type: string }>;
 }
 
-async function fillTextField(page: Page, input: ElementHandle, answer: string): Promise<void> {
-  await input.click();
-  await input.fill("");
-  for (const char of answer) { await input.type(char, { delay: Math.random() * 50 + 20 }); }
-}
-
-async function fillSelectField(page: Page, select: ElementHandle, answer: string): Promise<boolean> {
-  const options = await select.$eval("select", (el) => {
-    return Array.from((el as HTMLSelectElement).options).map((o) => o.textContent?.trim() ?? "").filter(Boolean);
-  }).catch(async () => {
-    return await select.$$eval("option", (opts: HTMLOptionElement[]) => opts.map((o) => o.textContent?.trim() ?? "").filter(Boolean));
-  });
-  const best = findBestOption(answer, options);
-  if (!best) return false;
-  await select.selectOption({ label: best });
-  return true;
-}
-
-async function fillLinkedInDropdown(page: Page, container: ElementHandle, answer: string): Promise<boolean> {
-  const input = await container.$("input");
-  if (!input) return false;
-  await input.click();
-  await input.fill(answer);
-  await page.waitForTimeout(1000);
-  const options = await page.$$(".basic-typeahead__selectable, [role='option']");
-  if (options.length === 0) return false;
-  const optionTexts: string[] = [];
-  for (const opt of options) { optionTexts.push((await opt.textContent())?.trim() ?? ""); }
-  const best = findBestOption(answer, optionTexts);
-  const idx = best ? optionTexts.indexOf(best) : 0;
-  await options[idx >= 0 ? idx : 0].click();
-  return true;
-}
-
-async function fillRadioField(page: Page, fieldset: ElementHandle, answer: string): Promise<boolean> {
-  const labels = await fieldset.$$("label");
-  for (const label of labels) {
-    const text = (await label.textContent())?.trim().toLowerCase() ?? "";
-    if (text === answer.toLowerCase() || text.includes(answer.toLowerCase())) { await label.click(); return true; }
-  }
-  return false;
-}
-
-export async function fillFormStep(page: Page, answers: ProfileAnswerRecord[]): Promise<FillResult> {
+export async function fillFormStep(
+  page: Page,
+  answers: ProfileAnswerRecord[]
+): Promise<FillResult> {
   const unfilledFields: Array<{ label: string; type: string }> = [];
-  const formGroups = await page.$$(".jobs-easy-apply-form-section__grouping, .fb-dash-form-element");
+
+  // Find all form element groups using LinkedIn's stable data-test attributes
+  const formGroups = await page.$$("[data-test-form-element]");
 
   for (const group of formGroups) {
-    const labelEl = await group.$("label, .fb-dash-form-element__label, legend");
-    const labelText = labelEl ? ((await labelEl.textContent()) ?? "").trim() : "";
+    // Extract the label text - try multiple label selectors
+    let labelText = "";
+    for (const labelSel of [
+      "[data-test-text-entity-list-form-title] span[aria-hidden='true']",
+      "[data-test-text-entity-list-form-title]",
+      "[data-test-form-builder-radio-button-form-component__title] span[aria-hidden='true']",
+      "[data-test-form-builder-radio-button-form-component__title]",
+      "label.artdeco-text-input--label",
+      "label.fb-dash-form-element__label span[aria-hidden='true']",
+      "label.fb-dash-form-element__label",
+      "legend span[aria-hidden='true']",
+      "legend",
+      "label",
+    ]) {
+      const el = await group.$(labelSel);
+      if (el) {
+        labelText = ((await el.textContent()) ?? "").trim();
+        if (labelText) break;
+      }
+    }
+
     if (!labelText) continue;
 
-    const textInput = await group.$('input[type="text"], input[type="tel"], input[type="email"], input[type="url"]');
-    const textarea = await group.$("textarea");
-    const select = await group.$("select");
-    const typeahead = await group.$(".basic-typeahead, [data-test-text-entity-list-filter-typeahead]");
-    const radioGroup = await group.$('fieldset, [role="radiogroup"]');
-    const fileInput = await group.$('input[type="file"]');
-    const checkbox = await group.$('input[type="checkbox"]');
+    // 1. Select dropdown (data-test-text-entity-list-form-select)
+    const selectEl = await group.$("[data-test-text-entity-list-form-select]");
+    if (selectEl) {
+      const currentVal = await selectEl.inputValue();
+      if (currentVal && currentVal !== "Select an option") continue;
 
-    if (textInput) {
-      const currentValue = await textInput.inputValue();
-      if (currentValue) continue;
-      const answer = matchField(labelText, "text", answers);
-      if (answer) { await fillTextField(page, textInput, answer); }
-      else { const r = await textInput.getAttribute("aria-required"); const rr = await textInput.getAttribute("required"); if (r === "true" || rr !== null) unfilledFields.push({ label: labelText, type: "text" }); }
-    } else if (textarea) {
-      const currentValue = await textarea.inputValue();
-      if (currentValue) continue;
-      const answer = matchField(labelText, "textarea", answers);
-      if (answer) { await fillTextField(page, textarea, answer); }
-      else { const r = await textarea.getAttribute("aria-required"); const rr = await textarea.getAttribute("required"); if (r === "true" || rr !== null) unfilledFields.push({ label: labelText, type: "textarea" }); }
-    } else if (select) {
       const answer = matchField(labelText, "select", answers);
-      if (answer) { if (!(await fillSelectField(page, select, answer))) unfilledFields.push({ label: labelText, type: "select" }); }
-      else { const r = await select.getAttribute("aria-required"); const rr = await select.getAttribute("required"); if (r === "true" || rr !== null) unfilledFields.push({ label: labelText, type: "select" }); }
-    } else if (typeahead) {
-      const answer = matchField(labelText, "select", answers);
-      if (answer) { await fillLinkedInDropdown(page, typeahead, answer); }
-      else { unfilledFields.push({ label: labelText, type: "typeahead" }); }
-    } else if (radioGroup) {
-      const answer = matchField(labelText, "radio", answers);
-      if (answer) { if (!(await fillRadioField(page, radioGroup, answer))) unfilledFields.push({ label: labelText, type: "radio" }); }
-      else { unfilledFields.push({ label: labelText, type: "radio" }); }
-    } else if (fileInput) {
-      const uploaded = await group.$(".jobs-document-upload__upload-label--complete");
-      if (!uploaded) {
-        const answer = matchField(labelText, "file", answers);
-        if (answer) { await fileInput.setInputFiles(answer); }
-        else { unfilledFields.push({ label: labelText, type: "file" }); }
+      if (answer) {
+        // Get option values and try to match
+        const optionValues = await selectEl.$$("option");
+        let matched = false;
+        for (const opt of optionValues) {
+          const val = ((await opt.getAttribute("value")) ?? "").trim();
+          const text = ((await opt.textContent()) ?? "").trim();
+          if (val === "Select an option" || !val) continue;
+          const bestFromVal = findBestOption(answer, [val]);
+          const bestFromText = findBestOption(answer, [text]);
+          if (bestFromVal || bestFromText) {
+            await selectEl.selectOption(val);
+            matched = true;
+            break;
+          }
+        }
+        if (!matched) {
+          // Try direct value match
+          try { await selectEl.selectOption(answer); matched = true; } catch { /* not found */ }
+        }
+        if (!matched) unfilledFields.push({ label: labelText, type: "select" });
+      } else {
+        const isRequired = (await selectEl.getAttribute("required")) !== null ||
+          (await selectEl.getAttribute("aria-required")) === "true";
+        if (isRequired) unfilledFields.push({ label: labelText, type: "select" });
       }
-    } else if (checkbox) {
+      continue;
+    }
+
+    // 2. Radio buttons (data-test-form-builder-radio-button-form-component)
+    const radioGroup = await group.$("[data-test-form-builder-radio-button-form-component]");
+    if (radioGroup) {
+      const checked = await radioGroup.$("input[type='radio']:checked");
+      if (checked) continue;
+
+      const answer = matchField(labelText, "radio", answers);
+      if (answer) {
+        const optionEls = await radioGroup.$$("[data-test-text-selectable-option]");
+        let filled = false;
+        for (const optEl of optionEls) {
+          const input = await optEl.$("input[type='radio']");
+          const label = await optEl.$("label");
+          if (input && label) {
+            const labelVal = ((await label.textContent()) ?? "").trim();
+            const inputVal = (await input.getAttribute("value")) ?? "";
+            if (
+              labelVal.toLowerCase() === answer.toLowerCase() ||
+              inputVal.toLowerCase() === answer.toLowerCase() ||
+              labelVal.toLowerCase().includes(answer.toLowerCase())
+            ) {
+              await label.click();
+              filled = true;
+              break;
+            }
+          }
+        }
+        if (!filled) unfilledFields.push({ label: labelText, type: "radio" });
+      } else {
+        const isRequired = await radioGroup.$("input[aria-required='true']");
+        if (isRequired) unfilledFields.push({ label: labelText, type: "radio" });
+      }
+      continue;
+    }
+
+    // 3. Text input (data-test-single-line-text-form-component)
+    const textComponent = await group.$("[data-test-single-line-text-form-component]");
+    if (textComponent) {
+      const input = await textComponent.$("input.artdeco-text-input--input");
+      if (!input) continue;
+
+      const currentVal = await input.inputValue();
+      if (currentVal) continue;
+
+      const answer = matchField(labelText, "text", answers);
+      if (answer) {
+        await input.click();
+        await input.fill(answer);
+      } else {
+        const isRequired = (await input.getAttribute("required")) !== null;
+        if (isRequired) unfilledFields.push({ label: labelText, type: "text" });
+      }
+      continue;
+    }
+
+    // 4. Textarea
+    const textarea = await group.$("textarea");
+    if (textarea) {
+      const currentVal = await textarea.inputValue();
+      if (currentVal) continue;
+
+      const answer = matchField(labelText, "textarea", answers);
+      if (answer) {
+        await textarea.click();
+        await textarea.fill(answer);
+      } else {
+        const isRequired = (await textarea.getAttribute("required")) !== null ||
+          (await textarea.getAttribute("aria-required")) === "true";
+        if (isRequired) unfilledFields.push({ label: labelText, type: "textarea" });
+      }
+      continue;
+    }
+
+    // 5. File upload - resume is typically pre-selected on LinkedIn, skip
+    const fileInput = await group.$("input[type='file']");
+    if (fileInput) continue;
+
+    // 6. Checkbox
+    const checkbox = await group.$("input[type='checkbox']");
+    if (checkbox) {
       const answer = matchField(labelText, "checkbox", answers);
-      if (answer && answer.toLowerCase() === "yes") { if (!(await checkbox.isChecked())) await checkbox.check(); }
+      if (answer && answer.toLowerCase() === "yes") {
+        const isChecked = await checkbox.isChecked();
+        if (!isChecked) await checkbox.check();
+      }
+      continue;
+    }
+
+    // 7. Fallback: generic input
+    const genericInput = await group.$("input[type='text'], input[type='tel'], input[type='email'], input[type='url']");
+    if (genericInput) {
+      const currentVal = await genericInput.inputValue();
+      if (currentVal) continue;
+      const answer = matchField(labelText, "text", answers);
+      if (answer) {
+        await genericInput.click();
+        await genericInput.fill(answer);
+      } else {
+        const isRequired = (await genericInput.getAttribute("required")) !== null;
+        if (isRequired) unfilledFields.push({ label: labelText, type: "text" });
+      }
+      continue;
+    }
+
+    // 8. Fallback: generic select
+    const genericSelect = await group.$("select");
+    if (genericSelect) {
+      const currentVal = await genericSelect.inputValue();
+      if (currentVal && currentVal !== "Select an option") continue;
+      const answer = matchField(labelText, "select", answers);
+      if (answer) {
+        try { await genericSelect.selectOption(answer); } catch {
+          unfilledFields.push({ label: labelText, type: "select" });
+        }
+      } else {
+        const isRequired = (await genericSelect.getAttribute("required")) !== null;
+        if (isRequired) unfilledFields.push({ label: labelText, type: "select" });
+      }
     }
   }
 

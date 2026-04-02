@@ -34,26 +34,42 @@ export async function startAutomation(): Promise<void> {
     }
     const answers: ProfileAnswerRecord[] = (await prisma.profileAnswer.findMany()).map(a => ({ fieldLabel: a.fieldLabel, fieldType: a.fieldType, answer: a.answer }));
     const processedIds = await loadProcessedJobIds();
-    let totalApplied = 0; const maxPerSession = 50;
+    let totalApplied = 0;
+    const maxPerSession = 25; // Stay under LinkedIn's daily rate limit
+    let rateLimited = false;
 
     for (const config of configs) {
-      if (getState().status === "stopping") break;
+      if (getState().status === "stopping" || rateLimited) break;
       const params: SearchParams = { keywords: config.keywords, location: config.location || undefined, remotePreference: config.remotePreference as SearchParams["remotePreference"], experienceLevel: config.experienceLevel as SearchParams["experienceLevel"], datePosted: config.datePosted as SearchParams["datePosted"] };
       updateState({ currentJob: `Searching for "${config.keywords}"...` });
       const jobs = await searchJobs(page, params, logger);
       for (const job of jobs) {
-        if (getState().status === "stopping") break;
+        if (getState().status === "stopping" || rateLimited) break;
         if (totalApplied >= maxPerSession) break;
         if (isJobProcessed(job.linkedinJobId, processedIds)) continue;
         const result = await applyToJob(page, job, answers, logger);
         await saveJobResult(job, result, config.keywords);
         processedIds.add(job.linkedinJobId);
-        if (result.status === "applied") { totalApplied++; updateState({ appliedThisRun: getState().appliedThisRun + 1 }); }
-        else if (result.status === "skipped" || result.status === "needs_review") { updateState({ skippedThisRun: getState().skippedThisRun + 1 }); }
-        else { updateState({ errorsThisRun: getState().errorsThisRun + 1 }); }
-        await page.waitForTimeout(randomDelay(3000, 8000));
+        if (result.status === "applied") {
+          totalApplied++;
+          updateState({ appliedThisRun: getState().appliedThisRun + 1 });
+        } else if (result.reason?.includes("rate limit") || result.reason?.includes("daily submission")) {
+          // LinkedIn rate limited us — stop immediately
+          rateLimited = true;
+          logger.log({ action: "rate_limited", details: { appliedBeforeLimit: totalApplied } });
+          updateState({ currentJob: "Rate limited by LinkedIn — try again tomorrow" });
+          break;
+        } else if (result.status === "skipped" || result.status === "needs_review") {
+          updateState({ skippedThisRun: getState().skippedThisRun + 1 });
+        } else {
+          updateState({ errorsThisRun: getState().errorsThisRun + 1 });
+        }
+        // Longer delays between applications to appear more human
+        await page.waitForTimeout(randomDelay(5000, 12000));
       }
-      if (totalApplied >= maxPerSession) break;
+      if (totalApplied >= maxPerSession || rateLimited) break;
+      // Pause between search queries
+      await page.waitForTimeout(randomDelay(3000, 6000));
     }
     logger.log({ action: "automation_stop", details: { applied: getState().appliedThisRun, skipped: getState().skippedThisRun, errors: getState().errorsThisRun } });
     await loginResult.browser.close(); activeBrowser = null;
