@@ -187,4 +187,4 @@ tests/
 
 ## License
 
-Private — not for distribution.
+MIT — see [LICENSE](LICENSE) for details.

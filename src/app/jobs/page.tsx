@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { JobTable } from "@/components/jobs/job-table";
 import { JobFilters } from "@/components/jobs/job-filters";
-import { AdSlot } from "@/components/ads/ad-slot";
 
 export default function JobsPage() {
   const [jobs, setJobs] = useState<any[]>([]);
@@ -20,7 +19,6 @@ export default function JobsPage() {
     <div className="space-y-6">
       <h2 className="text-3xl font-bold">Applied Jobs</h2>
       <JobFilters search={search} status={status} onSearchChange={setSearch} onStatusChange={setStatus} />
-      <AdSlot slot="jobsMain" size="leaderboard" />
       <Card><CardHeader><CardTitle className="text-sm text-muted-foreground">{total} total jobs</CardTitle></CardHeader><CardContent><JobTable jobs={filtered} /></CardContent></Card>
     </div>
   );

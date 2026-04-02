@@ -3,7 +3,6 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Sidebar } from "@/components/sidebar";
-import { AdProvider } from "@/components/ads/ad-provider";
 
 export function LayoutShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -40,7 +39,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
     <div className="flex h-screen">
       <Sidebar />
       <main className="flex-1 overflow-auto p-6">
-        <AdProvider>{children}</AdProvider>
+        {children}
       </main>
     </div>
   );
