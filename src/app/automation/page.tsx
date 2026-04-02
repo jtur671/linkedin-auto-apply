@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusIndicator } from "@/components/automation/status-indicator";
 import { ControlButtons } from "@/components/automation/control-buttons";
 import { CheckCircle, XCircle, SkipForward } from "lucide-react";
+import { AdSlot } from "@/components/ads/ad-slot";
 
 interface AutomationState {
   status: string;
@@ -60,6 +61,7 @@ export default function AutomationPage() {
           </Card>
         ))}
       </div>
+      <AdSlot slot="automationBottom" size="small" />
     </div>
   );
 }

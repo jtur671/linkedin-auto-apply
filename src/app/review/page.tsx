@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/dashboard/status-badge";
 import { format } from "date-fns";
 import { ExternalLink } from "lucide-react";
+import { AdSlot } from "@/components/ads/ad-slot";
 
 interface Job { id: number; title: string; company: string; location: string; url: string; status: string; skipReason: string | null; appliedAt: string; }
 
@@ -15,6 +16,7 @@ export default function ReviewPage() {
     <div className="space-y-6">
       <h2 className="text-3xl font-bold">Needs Manual Review</h2>
       <p className="text-muted-foreground">These jobs had form fields the bot couldn&apos;t fill.</p>
+      <AdSlot slot="reviewMain" size="small" />
       {jobs.length === 0 ? <Card><CardContent className="py-8 text-center text-muted-foreground">No jobs need review.</CardContent></Card> : (
         <div className="space-y-3">{jobs.map(job => (
           <Card key={job.id}><CardContent className="flex items-center justify-between py-4">

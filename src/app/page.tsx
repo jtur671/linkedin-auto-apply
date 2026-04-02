@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { StatsCards } from "@/components/dashboard/stats-cards";
+import { AdSlot } from "@/components/ads/ad-slot";
 import { ApplicationsChart } from "@/components/dashboard/applications-chart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -19,6 +20,7 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <h2 className="text-3xl font-bold">Dashboard</h2>
       <StatsCards stats={stats} />
+      <AdSlot slot="dashboardMain" size="leaderboard" />
       <div className="grid gap-4 md:grid-cols-2">
         <ApplicationsChart data={[]} />
         <Card>
