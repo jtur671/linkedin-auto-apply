@@ -3,14 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { BarChart3, Briefcase, AlertCircle, Settings, Play, ScrollText } from "lucide-react";
+import { BarChart3, Briefcase, AlertCircle, Settings, Search, ScrollText } from "lucide-react";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: BarChart3 },
   { href: "/jobs", label: "Applied Jobs", icon: Briefcase },
   { href: "/review", label: "Needs Review", icon: AlertCircle },
+  { href: "/seo", label: "Profile SEO", icon: Search },
   { href: "/config", label: "Configuration", icon: Settings },
-  { href: "/automation", label: "Automation", icon: Play },
   { href: "/logs", label: "Logs", icon: ScrollText },
 ];
 

@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { CredentialsForm } from "@/components/config/credentials-form";
 import { SearchConfigForm } from "@/components/config/search-config-form";
 import { ProfileAnswersForm } from "@/components/config/profile-answers-form";
+import { AIProviderForm } from "@/components/config/ai-provider-form";
 
 export default function ConfigPage() {
   const [session, setSession] = useState<any>(null);
@@ -23,6 +24,7 @@ export default function ConfigPage() {
     <div className="space-y-6">
       <h2 className="text-3xl font-bold">Configuration</h2>
       <CredentialsForm session={session} onRefresh={fetchAll} />
+      <AIProviderForm onRefresh={fetchAll} />
       <SearchConfigForm configs={configs} onRefresh={fetchAll} />
       <ProfileAnswersForm answers={answers} onRefresh={fetchAll} />
     </div>

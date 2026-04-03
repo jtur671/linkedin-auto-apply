@@ -7,6 +7,7 @@ import { StepWelcome } from "@/components/onboarding/step-welcome";
 import { StepCredentials } from "@/components/onboarding/step-credentials";
 import { StepJobSearch } from "@/components/onboarding/step-job-search";
 import { StepProfile } from "@/components/onboarding/step-profile";
+import { StepAISetup } from "@/components/onboarding/step-ai-setup";
 
 export function OnboardingWizard() {
   const router = useRouter();
@@ -19,7 +20,7 @@ export function OnboardingWizard() {
   }
 
   async function handleComplete() {
-    router.push("/automation");
+    router.push("/");
   }
 
   return (
@@ -45,9 +46,16 @@ export function OnboardingWizard() {
           )}
           {currentStep === 3 && (
             <StepProfile
-              onComplete={handleComplete}
+              onComplete={() => setCurrentStep(4)}
               onBack={() => setCurrentStep(2)}
               email={email}
+            />
+          )}
+          {currentStep === 4 && (
+            <StepAISetup
+              onNext={handleComplete}
+              onBack={() => setCurrentStep(3)}
+              onSkip={handleComplete}
             />
           )}
         </div>

@@ -9,7 +9,7 @@
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org)
 [![Playwright](https://img.shields.io/badge/Playwright-1.59-2EAD33?logo=playwright&logoColor=white)](https://playwright.dev)
 
-A full-stack automation tool that applies to LinkedIn "Easy Apply" jobs for you — with a real-time dashboard, intelligent form filling, and zero cloud dependencies. Everything runs locally on your machine.
+A full-stack automation tool that applies to LinkedIn "Easy Apply" jobs for you and audits your profile for recruiter SEO — with a real-time dashboard, AI-powered profile optimization, and zero cloud dependencies. Everything runs locally on your machine.
 
 </div>
 
@@ -53,8 +53,11 @@ Jobs with unknown form fields get flagged with screenshots showing exactly what 
 ### Structured Logging
 Every action is logged as JSONL — timestamps, job details, durations, error reasons, screenshot paths. Export logs for analysis or feed them to an LLM.
 
+### Profile SEO Audit
+AI-powered profile analysis that scores your headline, about section, experience, and skills against target recruiter keywords. Get a scored report card with surgical callouts ("headline missing keyword X") and on-demand rewrites per section. Configurable between OpenAI and Google Gemini — bring your own API key.
+
 ### Guided Onboarding
-4-step wizard with curated job category presets (QA, Engineering, Data, Product, Design) so you don't have to type common job titles manually.
+5-step wizard with curated job category presets (QA, Engineering, Data, Product, Design) and optional AI provider setup so you're ready to go from the start.
 
 ---
 
@@ -110,8 +113,8 @@ Open **http://localhost:3000** — the onboarding wizard will walk you through t
 | **Dashboard** | Live stats, top companies chart, start/stop automation |
 | **Applied Jobs** | Searchable table of every application with status badges |
 | **Needs Review** | Jobs the bot skipped — with screenshots and skip reasons |
-| **Configuration** | Manage credentials, search filters, and profile answers |
-| **Automation** | Detailed run view with live activity feed and session stats |
+| **Profile SEO** | AI-powered profile audit with scores, callouts, and rewrites |
+| **Configuration** | Manage credentials, search filters, profile answers, and AI provider |
 | **Logs** | Filterable log viewer with JSONL export |
 
 ---
@@ -148,11 +151,12 @@ Engine starts
 | UI | React 19 + Tailwind CSS 4 + shadcn/ui |
 | Automation | Playwright (Chromium) |
 | Database | SQLite via Prisma ORM |
+| AI | OpenAI GPT-5.3 Instant or Google Gemini 3 Flash (configurable) |
 | Encryption | AES-256-GCM (credentials at rest) |
 | Testing | Vitest + Playwright Test |
 | Language | TypeScript |
 
-Everything runs locally. No cloud services, no API keys, no subscription fees.
+Everything runs locally. The only external call is to your chosen AI provider for profile audits — and that's optional.
 
 ---
 
@@ -162,7 +166,7 @@ Everything runs locally. No cloud services, no API keys, no subscription fees.
 src/
   app/                        # Pages and API routes
     api/                      # REST endpoints
-    automation/               # Automation control page
+    seo/                      # Profile SEO audit page
     config/                   # Settings page
     jobs/                     # Applied jobs list
     logs/                     # Log viewer
@@ -170,8 +174,9 @@ src/
     review/                   # Manual review queue
 
   components/                 # React components
-    automation/               # Live feed, status indicator, controls
-    config/                   # Credential, search, profile forms
+    automation/               # Status indicator, controls
+    seo/                      # Audit report, section cards, keyword input
+    config/                   # Credential, search, profile, AI provider forms
     dashboard/                # Stats cards, charts, badges
     onboarding/               # Wizard steps + progress bar
     ui/                       # shadcn/ui primitives
@@ -186,13 +191,17 @@ src/
       dropdown-handler.ts     # Fuzzy dropdown option matching
       screenshot.ts           # Error screenshot capture
       state.ts                # In-memory run state
+    seo/
+      scraper.ts              # Headless Playwright profile scraper
+      analyzer.ts             # AI provider routing + prompt construction
+      types.ts                # Shared types
     logging/                  # Structured JSONL logger + reader
     encryption/               # AES-256-GCM crypto
     field-matcher.ts          # Fuzzy label matching with 50+ aliases
     filter-builder.ts         # LinkedIn search URL builder
     dedup.ts                  # Duplicate application prevention
 
-prisma/schema.prisma          # 5 models: Job, SearchConfig, ProfileAnswer, Credential, AutomationLog
+prisma/schema.prisma          # 6 models: Job, SearchConfig, ProfileAnswer, Credential, AutomationLog, SeoAudit
 tests/                        # Unit, integration, E2E, and automation engine tests
 ```
 

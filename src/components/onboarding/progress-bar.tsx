@@ -3,7 +3,7 @@
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const STEPS = ["Welcome", "LinkedIn", "Job Search", "Profile"];
+const STEPS = ["Welcome", "LinkedIn", "Job Search", "Profile", "AI Setup"];
 
 interface ProgressBarProps {
   currentStep: number;

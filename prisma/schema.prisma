@@ -59,3 +59,13 @@ model AutomationLog {
   screenshot String?
   durationMs Int?
 }
+
+model SeoAudit {
+  id            Int      @id @default(autoincrement())
+  profileData   String
+  keywords      String
+  overallScore  Int
+  sectionScores String
+  summary       String
+  createdAt     DateTime @default(now())
+}
