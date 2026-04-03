@@ -148,11 +148,19 @@ export async function scrapeProfile(): Promise<ProfileData> {
         await page.goto(detailUrl, { waitUntil: "domcontentloaded", timeout: 8000 });
         await page.waitForTimeout(3000);
 
-        // Scroll down to load lazy content
-        await page.evaluate("window.scrollTo(0, document.body.scrollHeight)");
-        await page.waitForTimeout(1500);
-        await page.evaluate("window.scrollTo(0, document.body.scrollHeight)");
-        await page.waitForTimeout(1000);
+        // Scroll and click "Load more" / "Show more" buttons repeatedly
+        for (let i = 0; i < 5; i++) {
+          await page.evaluate("window.scrollTo(0, document.body.scrollHeight)");
+          await page.waitForTimeout(1000);
+          // Click any "Load more" or "Show more" buttons
+          const loadMoreBtn = await page.$('button:has-text("Load more"), button:has-text("Show more")');
+          if (loadMoreBtn) {
+            await loadMoreBtn.click().catch(() => {});
+            await page.waitForTimeout(1500);
+          } else {
+            break;
+          }
+        }
 
         // Grab ALL text from the page body (not just main — detail pages may use different containers)
         const pageText = await page.evaluate(() => document.body.innerText);

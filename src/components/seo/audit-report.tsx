@@ -20,7 +20,29 @@ function getSectionContent(section: string, profile: ProfileData): string {
   const s = section.toLowerCase();
   if (s === "headline") return profile.headline;
   if (s === "about") return profile.about;
-  if (s === "skills") return profile.topSkills.join(", ");
+  if (s === "skills") {
+    // Try to get full skills from the detail page text first
+    if (profile.rawProfileText) {
+      const lines = profile.rawProfileText.split("\n");
+      const skillsIdx = lines.findIndex((l) => l.trim() === "--- Skills ---");
+      if (skillsIdx >= 0) {
+        const skillLines: string[] = [];
+        for (let i = skillsIdx + 1; i < lines.length && i < skillsIdx + 100; i++) {
+          const line = lines[i].trim();
+          if (line.startsWith("---") && line.endsWith("---")) break;
+          // Filter out noise: nav items, project names repeated, empty lines
+          if (!line || line.length < 2 || line === "Load more" || line.includes("notifications") || line === "Skip to main content") continue;
+          if (["Home", "My Network", "Jobs", "Messaging", "Notifications", "Me", "For Business", "All", "Industry Knowledge", "Tools & Technologies", "Interpersonal Skills", "Other Skills", "Resources", "Enhance profile", "Add section", "Open to", "Who your viewers also viewed", "Private to you", "View", "About"].includes(line)) continue;
+          if (line.startsWith("Reactivate") || line.startsWith("jason-tur") || line.startsWith("Jason Tur")) continue;
+          skillLines.push(line);
+        }
+        // Deduplicate and filter out project associations
+        const uniqueSkills = [...new Set(skillLines)].filter((s) => s.length < 40);
+        if (uniqueSkills.length > 0) return uniqueSkills.join(", ");
+      }
+    }
+    return profile.topSkills.join(", ");
+  }
   if (s === "experience") return profile.experience.map((e) => `${e.title} at ${e.company}: ${e.description}`).join("\n\n");
 
   // For other sections (education, certifications, projects, courses, etc.)
