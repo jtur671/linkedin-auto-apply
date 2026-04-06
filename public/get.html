@@ -3,38 +3,64 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LinkedIn Auto Apply — Download</title>
+<title>LinkedIn Auto Apply — Get Started</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0a; color: #e5e5e5; }
-  .card { max-width: 480px; text-align: center; padding: 3rem 2rem; }
-  h1 { font-size: 2rem; margin-bottom: 0.5rem; }
-  .sub { color: #a3a3a3; margin-bottom: 2.5rem; line-height: 1.6; }
-  .buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
-  .btn { display: inline-block; padding: 14px 36px; background: #f97316; color: #000; font-size: 1.1rem; font-weight: 600; border: none; border-radius: 10px; cursor: pointer; text-decoration: none; transition: transform 0.15s, background 0.15s; }
-  .btn:hover { background: #fb923c; transform: scale(1.03); }
-  .btn-win { background: #3b82f6; }
-  .btn-win:hover { background: #60a5fa; }
-  .steps { margin-top: 2.5rem; text-align: left; color: #a3a3a3; font-size: 0.9rem; line-height: 2; }
-  .steps span { color: #f97316; font-weight: 600; }
-  .note { margin-top: 2rem; font-size: 0.8rem; color: #525252; }
+  body { min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0a; color: #e5e5e5; padding: 2rem; }
+  .card { max-width: 540px; width: 100%; }
+  h1 { font-size: 2.2rem; text-align: center; margin-bottom: 0.25rem; }
+  .tagline { text-align: center; color: #a3a3a3; margin-bottom: 2.5rem; }
+  .btn { display: block; width: 100%; padding: 18px; background: #3b82f6; color: #fff; font-size: 1.2rem; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; text-decoration: none; text-align: center; transition: transform 0.15s, background 0.15s; margin-bottom: 0.75rem; }
+  .btn:hover { background: #60a5fa; transform: scale(1.02); }
+  .btn-mac { background: #f97316; }
+  .btn-mac:hover { background: #fb923c; }
+  .divider { text-align: center; color: #525252; font-size: 0.85rem; margin: 2rem 0 1.5rem; position: relative; }
+  .divider::before, .divider::after { content: ''; position: absolute; top: 50%; width: 40%; height: 1px; background: #262626; }
+  .divider::before { left: 0; }
+  .divider::after { right: 0; }
+  .steps { background: #141414; border: 1px solid #262626; border-radius: 12px; padding: 1.5rem; }
+  .steps h2 { font-size: 1rem; margin-bottom: 1rem; color: #e5e5e5; }
+  .step { display: flex; gap: 0.75rem; margin-bottom: 1rem; }
+  .step:last-child { margin-bottom: 0; }
+  .num { flex-shrink: 0; width: 28px; height: 28px; background: #1e3a5f; color: #60a5fa; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; }
+  .step p { color: #a3a3a3; font-size: 0.95rem; line-height: 1.5; padding-top: 2px; }
+  .step strong { color: #e5e5e5; }
+  .warn { background: #1a1400; border: 1px solid #3d2e00; border-radius: 8px; padding: 0.75rem 1rem; margin-top: 1.5rem; font-size: 0.85rem; color: #fbbf24; line-height: 1.5; }
+  .dashboard { text-align: center; margin-top: 2rem; background: #0f1f0f; border: 1px solid #1a3a1a; border-radius: 12px; padding: 1.25rem; }
+  .dashboard p { color: #a3a3a3; font-size: 0.9rem; margin-bottom: 0.5rem; }
+  .dashboard a { color: #4ade80; font-size: 1.1rem; font-weight: 600; text-decoration: none; }
+  .dashboard a:hover { text-decoration: underline; }
+  .dashboard .small { font-size: 0.8rem; color: #525252; margin-top: 0.5rem; }
 </style>
 </head>
 <body>
 <div class="card">
   <h1>LinkedIn Auto Apply</h1>
-  <p class="sub">Automatically apply to hundreds of LinkedIn jobs while you sleep.</p>
-  <div class="buttons">
-    <a class="btn" href="https://raw.githubusercontent.com/jtur671/linkedin-auto-apply/main/scripts/install.command" download="install.command">Download for Mac</a>
-    <a class="btn btn-win" href="https://raw.githubusercontent.com/jtur671/linkedin-auto-apply/main/scripts/install.bat" download="install.bat">Download for Windows</a>
-  </div>
+  <p class="tagline">Auto-apply to jobs while you sleep.</p>
+
+  <a class="btn" href="https://github.com/jtur671/linkedin-auto-apply/raw/refs/heads/main/scripts/install.bat" download="install.bat">Download for Windows</a>
+  <a class="btn btn-mac" href="https://github.com/jtur671/linkedin-auto-apply/raw/refs/heads/main/scripts/install.command" download="install.command">Download for Mac</a>
+
+  <div class="divider">how it works</div>
+
   <div class="steps">
-    <span>1.</span> Click the button above<br>
-    <span>2.</span> Open the downloaded file<br>
-    <span>3.</span> If blocked: Mac → System Settings → Privacy → Open Anyway / Windows → "More info" → Run anyway<br>
-    <span>4.</span> It installs everything and opens the app in your browser
+    <h2>Setup (one time, takes ~2 min)</h2>
+    <div class="step"><div class="num">1</div><p>Click the <strong>Download</strong> button above</p></div>
+    <div class="step"><div class="num">2</div><p>Open the downloaded file from your <strong>Downloads folder</strong></p></div>
+    <div class="step"><div class="num">3</div><p>Windows will warn you — click <strong>"More info"</strong> then <strong>"Run anyway"</strong></p></div>
+    <div class="step"><div class="num">4</div><p>A black window opens and installs everything. <strong>Don't close it.</strong></p></div>
+    <div class="step"><div class="num">5</div><p>When it's done, your browser opens the dashboard automatically</p></div>
+
+    <div class="warn">
+      Keep the black window open while using the app. If you close it, the app stops. To restart, just double-click the file again.
+    </div>
   </div>
-  <p class="note">The installer will set up Node.js, Git, and everything else automatically.</p>
+
+  <div class="dashboard">
+    <p>Once running, your dashboard is at:</p>
+    <a href="http://localhost:3000">localhost:3000</a>
+    <p class="small">Bookmark this — it's where you control everything</p>
+  </div>
 </div>
 </body>
 </html>
