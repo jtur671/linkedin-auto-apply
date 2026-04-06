@@ -4,62 +4,317 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LinkedIn Auto Apply — Get Started</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --bg: #08080a;
+    --surface: #111114;
+    --border: #1e1e24;
+    --text: #e8e6e3;
+    --muted: #7a7880;
+    --accent: #e8a44a;
+    --accent-glow: #e8a44a30;
+    --accent-hover: #f0b85e;
+    --win: #5b8dee;
+    --win-hover: #7ba4f5;
+    --green: #5ec269;
+    --warn-bg: #1a1508;
+    --warn-border: #3a2d0a;
+    --warn-text: #d4a840;
+  }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0a; color: #e5e5e5; padding: 2rem; }
-  .card { max-width: 540px; width: 100%; }
-  h1 { font-size: 2.2rem; text-align: center; margin-bottom: 0.25rem; }
-  .tagline { text-align: center; color: #a3a3a3; margin-bottom: 2.5rem; }
-  .btn { display: block; width: 100%; padding: 18px; background: #3b82f6; color: #fff; font-size: 1.2rem; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; text-decoration: none; text-align: center; transition: transform 0.15s, background 0.15s; margin-bottom: 0.75rem; }
-  .btn:hover { background: #60a5fa; transform: scale(1.02); }
-  .btn-mac { background: #f97316; }
-  .btn-mac:hover { background: #fb923c; }
-  .divider { text-align: center; color: #525252; font-size: 0.85rem; margin: 2rem 0 1.5rem; position: relative; }
-  .divider::before, .divider::after { content: ''; position: absolute; top: 50%; width: 40%; height: 1px; background: #262626; }
-  .divider::before { left: 0; }
-  .divider::after { right: 0; }
-  .steps { background: #141414; border: 1px solid #262626; border-radius: 12px; padding: 1.5rem; }
-  .steps h2 { font-size: 1rem; margin-bottom: 1rem; color: #e5e5e5; }
-  .step { display: flex; gap: 0.75rem; margin-bottom: 1rem; }
-  .step:last-child { margin-bottom: 0; }
-  .num { flex-shrink: 0; width: 28px; height: 28px; background: #1e3a5f; color: #60a5fa; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; }
-  .step p { color: #a3a3a3; font-size: 0.95rem; line-height: 1.5; padding-top: 2px; }
-  .step strong { color: #e5e5e5; }
-  .warn { background: #1a1400; border: 1px solid #3d2e00; border-radius: 8px; padding: 0.75rem 1rem; margin-top: 1.5rem; font-size: 0.85rem; color: #fbbf24; line-height: 1.5; }
-  .dashboard { text-align: center; margin-top: 2rem; background: #0f1f0f; border: 1px solid #1a3a1a; border-radius: 12px; padding: 1.25rem; }
-  .dashboard p { color: #a3a3a3; font-size: 0.9rem; margin-bottom: 0.5rem; }
-  .dashboard a { color: #4ade80; font-size: 1.1rem; font-weight: 600; text-decoration: none; }
-  .dashboard a:hover { text-decoration: underline; }
-  .dashboard .small { font-size: 0.8rem; color: #525252; margin-top: 0.5rem; }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 2rem 1.5rem;
+    overflow-x: hidden;
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    opacity: 0.03;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 200px;
+    z-index: 9999;
+  }
+
+  /* Ambient glow */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -40%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page { max-width: 520px; width: 100%; position: relative; z-index: 1; }
+
+  /* --- Hero --- */
+  .hero { text-align: center; margin-bottom: 3rem; }
+
+  .badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent-glow);
+    background: var(--accent-glow);
+    padding: 0.35rem 1rem;
+    border-radius: 100px;
+    margin-bottom: 1.5rem;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.8rem;
+    font-weight: 400;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.75rem;
+    animation: fadeDown 0.6s ease 0.1s both;
+  }
+
+  .tagline {
+    font-size: 1.05rem;
+    font-weight: 300;
+    color: var(--muted);
+    line-height: 1.6;
+    animation: fadeDown 0.6s ease 0.2s both;
+  }
+
+  /* --- Buttons --- */
+  .buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-bottom: 2.5rem;
+    animation: fadeDown 0.6s ease 0.3s both;
+  }
+
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    width: 100%;
+    padding: 1rem;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .btn-win {
+    background: var(--win);
+    color: #fff;
+    box-shadow: 0 2px 20px rgba(91, 141, 238, 0.2);
+  }
+  .btn-win:hover { background: var(--win-hover); transform: translateY(-1px); box-shadow: 0 4px 28px rgba(91, 141, 238, 0.3); }
+
+  .btn-mac {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .btn-mac:hover { border-color: #333; color: var(--text); transform: translateY(-1px); }
+
+  .btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+  /* --- Steps --- */
+  .section-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 1.25rem;
+    animation: fadeDown 0.6s ease 0.4s both;
+  }
+
+  .steps {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.75rem;
+    margin-bottom: 1rem;
+    animation: fadeDown 0.6s ease 0.45s both;
+  }
+
+  .step {
+    display: flex;
+    gap: 1rem;
+    padding: 0.65rem 0;
+  }
+
+  .step + .step { border-top: 1px solid #1a1a1f; }
+
+  .step-num {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    background: var(--accent-glow);
+    color: var(--accent);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.75rem;
+    margin-top: 1px;
+  }
+
+  .step p {
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.55;
+    font-weight: 400;
+  }
+
+  .step strong { color: var(--text); font-weight: 500; }
+
+  /* --- Warning --- */
+  .warn {
+    display: flex;
+    gap: 0.65rem;
+    align-items: flex-start;
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+    animation: fadeDown 0.6s ease 0.5s both;
+  }
+
+  .warn svg { flex-shrink: 0; width: 18px; height: 18px; color: var(--warn-text); margin-top: 1px; }
+  .warn p { font-size: 0.85rem; color: var(--warn-text); line-height: 1.55; font-weight: 400; }
+
+  /* --- Dashboard --- */
+  .dashboard {
+    text-align: center;
+    padding: 1.5rem;
+    border-radius: 14px;
+    border: 1px solid #142814;
+    background: linear-gradient(180deg, #0c150c 0%, var(--bg) 100%);
+    animation: fadeDown 0.6s ease 0.55s both;
+  }
+
+  .dashboard-label { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.5rem; }
+
+  .dashboard a {
+    display: inline-block;
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    color: var(--green);
+    text-decoration: none;
+    letter-spacing: -0.01em;
+    transition: color 0.2s;
+  }
+
+  .dashboard a:hover { color: #7dd888; }
+  .dashboard .hint { font-size: 0.75rem; color: #3a3a40; margin-top: 0.4rem; }
+
+  /* --- Animations --- */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* --- Mobile --- */
+  @media (max-width: 480px) {
+    h1 { font-size: 2.1rem; }
+    .steps { padding: 1.25rem; }
+  }
 </style>
 </head>
 <body>
-<div class="card">
-  <h1>LinkedIn Auto Apply</h1>
-  <p class="tagline">Auto-apply to jobs while you sleep.</p>
+<div class="page">
+  <div class="hero">
+    <div class="badge">Open Source</div>
+    <h1>LinkedIn Auto Apply</h1>
+    <p class="tagline">Apply to hundreds of jobs while you sleep.<br>One click to install. Nothing to configure.</p>
+  </div>
 
-  <a class="btn" href="https://github.com/jtur671/linkedin-auto-apply/raw/refs/heads/main/scripts/install.bat" download="install.bat">Download for Windows</a>
-  <a class="btn btn-mac" href="https://github.com/jtur671/linkedin-auto-apply/raw/refs/heads/main/scripts/install.command" download="install.command">Download for Mac</a>
+  <div class="buttons">
+    <a class="btn btn-win" href="https://github.com/jtur671/linkedin-auto-apply/raw/refs/heads/main/scripts/install.bat" download="install.bat">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 12V6.75l8-1.25V12H3zm0 .5h8v6.5l-8-1.25V12.5zM11.5 5.4l9.5-1.4v8h-9.5V5.4zm0 7.1h9.5v8l-9.5-1.4v-6.6z"/></svg>
+      Download for Windows
+    </a>
+    <a class="btn btn-mac" href="https://github.com/jtur671/linkedin-auto-apply/raw/refs/heads/main/scripts/install.command" download="install.command">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+      Download for Mac
+    </a>
+  </div>
 
-  <div class="divider">how it works</div>
+  <div class="section-label">Setup takes about 2 minutes</div>
 
   <div class="steps">
-    <h2>Setup (one time, takes ~2 min)</h2>
-    <div class="step"><div class="num">1</div><p>Click the <strong>Download</strong> button above</p></div>
-    <div class="step"><div class="num">2</div><p>Open the downloaded file from your <strong>Downloads folder</strong></p></div>
-    <div class="step"><div class="num">3</div><p>Windows will warn you — click <strong>"More info"</strong> then <strong>"Run anyway"</strong></p></div>
-    <div class="step"><div class="num">4</div><p>A black window opens and installs everything. <strong>Don't close it.</strong></p></div>
-    <div class="step"><div class="num">5</div><p>When it's done, your browser opens the dashboard automatically</p></div>
-
-    <div class="warn">
-      Keep the black window open while using the app. If you close it, the app stops. To restart, just double-click the file again.
+    <div class="step">
+      <div class="step-num">1</div>
+      <p>Click <strong>Download</strong> above</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <p>Open the file from your <strong>Downloads</strong> folder</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <p>Windows will show a warning — click <strong>"More info"</strong> then <strong>"Run anyway"</strong></p>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <p>A black window appears and installs everything. <strong>Don't close it</strong></p>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <p>Your browser opens the dashboard when it's ready</p>
     </div>
   </div>
 
+  <div class="warn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <p>Keep the black window open while using the app. Close it and the app stops. To restart, just double-click the file again.</p>
+  </div>
+
   <div class="dashboard">
-    <p>Once running, your dashboard is at:</p>
+    <p class="dashboard-label">Once it's running, your dashboard lives at</p>
     <a href="http://localhost:3000">localhost:3000</a>
-    <p class="small">Bookmark this — it's where you control everything</p>
+    <p class="hint">Bookmark it</p>
   </div>
 </div>
 </body>
