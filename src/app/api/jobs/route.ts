@@ -38,3 +38,12 @@ export async function GET(req: Request) {
   ]);
   return NextResponse.json({ jobs, total });
 }
+
+export async function PATCH(req: Request) {
+  const { id, status } = await req.json();
+  if (!id || !status) {
+    return NextResponse.json({ error: "id and status required" }, { status: 400 });
+  }
+  const job = await prisma.job.update({ where: { id }, data: { status } });
+  return NextResponse.json({ job });
+}

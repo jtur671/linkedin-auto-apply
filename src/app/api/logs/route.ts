@@ -6,7 +6,16 @@ export async function GET(req: Request) {
   const action = searchParams.get("action") ?? undefined;
   const date = searchParams.get("date") ?? undefined;
   const exportFormat = searchParams.get("export");
-  const logs = readLogs(undefined, { action, date });
+  const limitParam = searchParams.get("limit");
+  const limit = limitParam ? parseInt(limitParam, 10) : undefined;
+
+  let logs = readLogs(undefined, { action, date });
+
+  // Return only the latest N entries when limit is specified
+  if (limit && limit > 0) {
+    logs = logs.slice(-limit);
+  }
+
   if (exportFormat === "json") {
     const content = logs.map((l) => JSON.stringify(l)).join("\n");
     return new Response(content, {
