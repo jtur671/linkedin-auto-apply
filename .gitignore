@@ -56,3 +56,8 @@ prisma/dev.db-journal
 playwright-report/
 test-results/
 dev.db
+prisma/test.db
+
+# local DB backups / forensic recovery copies (never commit data)
+dev.db.*
+prisma/dev.db.*
