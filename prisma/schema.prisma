@@ -69,3 +69,42 @@ model SeoAudit {
   summary       String
   createdAt     DateTime @default(now())
 }
+
+model Resume {
+  id         Int      @id @default(autoincrement())
+  filename   String
+  content    String
+  rawPath    String
+  isActive   Boolean  @default(true)
+  uploadedAt DateTime @default(now())
+}
+
+model IndeedJob {
+  id             Int                @id @default(autoincrement())
+  indeedJobId    String             @unique
+  title          String
+  company        String
+  location       String
+  salary         String?
+  jobType        String?
+  url            String
+  applyUrl       String?
+  descriptionRaw String
+  matchScore     Int?
+  matchSummary   String?
+  searchQuery    String
+  scrapedAt      DateTime           @default(now())
+  createdAt      DateTime           @default(now())
+  requirements   IndeedRequirement[]
+}
+
+model IndeedRequirement {
+  id          Int       @id @default(autoincrement())
+  jobId       Int
+  job         IndeedJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  category    String
+  requirement String
+  isRequired  Boolean   @default(true)
+  matched     Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+}

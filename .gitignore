@@ -61,3 +61,6 @@ prisma/test.db
 # local DB backups / forensic recovery copies (never commit data)
 dev.db.*
 prisma/dev.db.*
+
+# User uploads (resumes)
+uploads/

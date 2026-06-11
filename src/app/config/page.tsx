@@ -4,6 +4,7 @@ import { CredentialsForm } from "@/components/config/credentials-form";
 import { SearchConfigForm } from "@/components/config/search-config-form";
 import { ProfileAnswersForm } from "@/components/config/profile-answers-form";
 import { AIProviderForm } from "@/components/config/ai-provider-form";
+import { ResumeUpload } from "@/components/config/resume-upload";
 
 export default function ConfigPage() {
   const [session, setSession] = useState<any>(null);
@@ -27,6 +28,7 @@ export default function ConfigPage() {
       <AIProviderForm onRefresh={fetchAll} />
       <SearchConfigForm configs={configs} onRefresh={fetchAll} />
       <ProfileAnswersForm answers={answers} onRefresh={fetchAll} />
+      <ResumeUpload />
     </div>
   );
 }
