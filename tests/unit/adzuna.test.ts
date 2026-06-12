@@ -41,6 +41,8 @@ describe("mapAdzunaResult", () => {
     expect(job.description).toBe("We need 5+ years of automation testing experience…");
     expect(job.salary).toBe("90,000–120,000");
     expect(job.jobType).toBe("full_time");
+    expect(job.source).toBe("adzuna");
+    expect(job.applyUrl).toBe("https://www.adzuna.com/land/ad/123456789");
   });
 
   it("applies safe defaults for missing optional fields", () => {
@@ -53,6 +55,8 @@ describe("mapAdzunaResult", () => {
     expect(job.jobType).toBeNull();
     expect(job.url).toBe("");
     expect(job.description).toBe("");
+    expect(job.source).toBe("adzuna");
+    expect(job.applyUrl).toBe("");
   });
 });
 

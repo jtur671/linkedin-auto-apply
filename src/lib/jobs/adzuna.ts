@@ -1,3 +1,6 @@
+import type { NormalizedJob } from "@/lib/sources/types";
+export type { NormalizedJob } from "@/lib/sources/types"; // keep existing import paths working
+
 export function formatSalary(
   min?: number,
   max?: number,
@@ -26,31 +29,23 @@ export interface AdzunaRawResult {
   contract_type?: string;
 }
 
-export interface NormalizedJob {
-  externalId: string;
-  title: string;
-  company: string;
-  location: string;
-  salary: string | null;
-  jobType: string | null;
-  url: string;
-  description: string;
-}
-
 /** Adzuna returns salary_is_predicted as "1"/"0" (occasionally numeric/boolean). */
 function isPredictedSalary(flag?: string | number | boolean): boolean {
   return flag === true || flag === 1 || flag === "1";
 }
 
 export function mapAdzunaResult(r: AdzunaRawResult): NormalizedJob {
+  const url = r.redirect_url ?? "";
   return {
+    source: "adzuna",
     externalId: String(r.id),
     title: r.title?.trim() || "Untitled",
     company: r.company?.display_name?.trim() || "Unknown",
     location: r.location?.display_name?.trim() || "",
     salary: formatSalary(r.salary_min, r.salary_max, isPredictedSalary(r.salary_is_predicted)),
     jobType: r.contract_time ?? r.contract_type ?? null,
-    url: r.redirect_url ?? "",
+    url,
+    applyUrl: url,
     description: r.description?.trim() || "",
   };
 }
