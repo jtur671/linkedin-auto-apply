@@ -7,6 +7,15 @@ const sampleJob: NormalizedJob = {
   salary: null, jobType: null, url: "https://example.com/jobs/1", applyUrl: null, description: "",
 };
 
+// Guard: describe.each over an empty array generates zero cases and passes
+// silently, which would hide the conformance suite becoming a no-op.
+describe("registry is populated", () => {
+  it("has at least one source and one applier", () => {
+    expect(registeredSources().length).toBeGreaterThan(0);
+    expect(registeredAppliers().length).toBeGreaterThan(0);
+  });
+});
+
 describe.each(registeredSources())("JobSource conformance: $id", (source) => {
   it("has a non-empty id and label", () => {
     expect(source.id).toBeTruthy();
