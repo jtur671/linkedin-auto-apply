@@ -191,15 +191,53 @@ Existing `src/lib/jobs/adzuna.ts` and `ingest.ts` stay; `ingest.ts` updates to t
 
 ## 8. Testing
 
-- **Unit (vitest), all network mocked, zero real submits:**
-  - `applierFor` host routing: greenhouse hosts → GreenhouseApplier; unknown → null.
-  - Greenhouse URL parsing → `{token, job_id}` across the supported host forms.
-  - Greenhouse question→profile mapping: all required resolved → submit; an unresolved required → `needs_review`.
-  - Greenhouse apply outcomes against mocked board responses: 2xx → `submitted`; 401/403 → triggers browser-fallback path.
-  - `AdzunaSource.search` stamps `source`/`applyUrl` and otherwise matches `searchAdzuna`.
-  - `POST /api/jobs/[id]/apply`: routes a Greenhouse job to the applier and persists `applyOutcome`/`appliedAt`; a non-Greenhouse job returns the "no applier" response without calling `apply()`.
-- **Regression:** the existing suite (72 tests at M0) stays green; the Adzuna refactor changes no behavior.
-- **No test ever POSTs to a real employer.** Browser-fallback apply is covered by mocked/unit-level checks in M1; a live end-to-end apply is a manual, opt-in verification, not part of CI.
+Built **test-first** (write the failing test, then the code). Five layers, plus a hard safety guarantee and one opt-in manual check.
+
+### 8.1 Unit tests (vitest) — pure logic, all I/O mocked
+
+| Unit | Cases |
+|------|-------|
+| `applierFor` routing | each greenhouse host form → `GreenhouseApplier`; `linkedin.com`/unknown → `null`; matches on `applyUrl`, falls back to `url`; null/empty url → `null` |
+| Greenhouse URL parse | `boards.greenhouse.io/{token}/jobs/{id}` and `job-boards.greenhouse.io/...` → `{token, jobId}`; malformed/missing id → parse error surfaced as `failed`, not a throw |
+| Question → profile mapping | all required resolved → proceeds to submit; **unresolved required → `needs_review`** (never guesses); unresolved *optional* → still submits; alias matches go through `field-matcher` |
+| `assembleApplicantProfile` | builds from `Credential` + `ProfileAnswer` + `Resume`; missing phone/resume handled (not a crash); no credential row → clear error |
+| Apply outcomes (mocked board) | `2xx` → `submitted` (`method:"api"`); `401/403` → triggers **browser-fallback** path; `422`/validation → `failed` with message; network throw → `failed`, never unhandled |
+| `AdzunaSource.search` | stamps `source:"adzuna"` + `applyUrl`; `JobSearchCriteria` → `AdzunaSearchParams` translation; output otherwise equals `searchAdzuna` (equivalence test pins "no behavior change") |
+
+### 8.2 Contract-conformance suite (the fleet's safety net)
+
+A **reusable** `describe.each` suite that *every* registered `JobSource`/`JobApplier` must pass — run against `AdzunaSource`/`GreenhouseApplier` now, and inherited unchanged by every M2 fleet adapter. This is what stops parallel agents from drifting off the contract.
+
+- Every `JobSource`: `search()` returns `NormalizedJob[]`; every job has non-empty `externalId`, `source === source.id`, and all required fields present/typed.
+- Every `JobApplier`: `canApply()` is pure & deterministic (same input → same output, no I/O); `apply()` resolves to a valid `ApplyResult` shape with a legal `outcome`/`method`.
+
+### 8.3 Integration tests (vitest + isolated test DB, network mocked)
+
+- `ingestJobs` composite dedup: same `externalId` across **different** sources → both stored; same `(source, externalId)` → deduped.
+- `POST /api/jobs/[id]/apply`: seed a Greenhouse `DiscoveredJob` + mocked board → asserts `applyOutcome`/`appliedAt` persisted and the `ApplyResult` returned; a non-Greenhouse job → "no applier" response, `apply()` never called.
+- Reuses the existing `tests/integration` test-DB isolation.
+
+### 8.4 Browser-fallback test (Playwright, no live site)
+
+The Greenhouse browser filler runs against a **saved Greenhouse form HTML fixture served locally** — not the real site. Asserts fields fill and submit is invoked (submit button intercepted/stubbed). Deterministic, offline, and proves the one-filler-fits-all-boards claim.
+
+### 8.5 Fixtures
+
+Capture one real Greenhouse board API response (`GET …/jobs/{id}?questions=true`) **once**, sanitize, and commit as a fixture so mapping/apply tests run against realistic question shapes. Same for the saved form HTML.
+
+### 8.6 Hard safety guarantee — no real submissions, ever
+
+- Global test setup installs a `fetch` guard that **throws** on any un-mocked request to `*.greenhouse.io` (or any real host). A real network call during tests fails loudly instead of leaking a submission.
+- No test path reaches a real `POST` to an employer. CI is fully offline.
+
+### 8.7 Manual live-apply verification (opt-in, human-run, not CI)
+
+The *only* place a real submission happens: a documented checklist, gated behind an explicit `ALLOW_LIVE_APPLY=1` env flag, run by hand against a single known Greenhouse posting. Records outcome + screenshot. Never runs in automation.
+
+### 8.8 Definition of done
+
+- All new unit/contract/integration tests pass; the existing M0 suite (72 tests) stays green; `eslint` clean; `tsc` clean.
+- The Adzuna equivalence test confirms the refactor changed no behavior.
 
 ---
 
