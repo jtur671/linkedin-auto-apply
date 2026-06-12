@@ -6,10 +6,20 @@ describe("isGreenhouseUrl", () => {
     expect(isGreenhouseUrl("https://boards.greenhouse.io/acme/jobs/123")).toBe(true);
     expect(isGreenhouseUrl("https://job-boards.greenhouse.io/acme/jobs/123")).toBe(true);
   });
+  it("recognizes the apex domain", () => {
+    expect(isGreenhouseUrl("https://greenhouse.io/acme/jobs/123")).toBe(true);
+  });
   it("rejects non-greenhouse and empty", () => {
     expect(isGreenhouseUrl("https://www.linkedin.com/jobs/view/123")).toBe(false);
     expect(isGreenhouseUrl("")).toBe(false);
     expect(isGreenhouseUrl(null)).toBe(false);
+  });
+  it("rejects look-alike hosts that merely contain the domain", () => {
+    expect(isGreenhouseUrl("https://greenhouse.io.evil.com/acme/jobs/1")).toBe(false);
+    expect(isGreenhouseUrl("https://notgreenhouse.io/acme/jobs/1")).toBe(false);
+  });
+  it("requires https", () => {
+    expect(isGreenhouseUrl("http://boards.greenhouse.io/acme/jobs/1")).toBe(false);
   });
 });
 
