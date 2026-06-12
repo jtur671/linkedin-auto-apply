@@ -61,15 +61,21 @@ export const greenhouseApplier: JobApplier = {
       return { outcome: "needs_review", method: "api", message: `Unanswered required: ${missingRequired.join(", ")}` };
     }
 
-    const submit = await fetch(`${BOARDS_API}/${token}/jobs/${jobId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...fields, email: profile.email }),
-    });
-    if (submit.status === 401 || submit.status === 403) {
-      return browserApplyGreenhouse(job, profile); // board requires auth — use the form
+    let submit: Response;
+    try {
+      submit = await fetch(`${BOARDS_API}/${token}/jobs/${jobId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...fields, email: profile.email }),
+      });
+    } catch (e) {
+      return { outcome: "failed", method: "api", message: String(e) };
     }
-    if (!submit.ok) return { outcome: "failed", method: "api", message: `Submit ${submit.status}` };
-    return { outcome: "submitted", method: "api" };
+    if (submit.ok) return { outcome: "submitted", method: "api" };
+    // The anonymous API POST was rejected — an auth-gated/private board, or
+    // server-side validation we can't satisfy on the API path (notably a
+    // required resume, which the API body doesn't attach). Fall back to the
+    // browser form, which fills the standard fields and uploads the resume.
+    return browserApplyGreenhouse(job, profile);
   },
 };
