@@ -14,12 +14,18 @@ export default function IndeedJobDetailPage() {
   const params = useParams();
   const [job, setJob] = useState<any>(null);
   const [copied, setCopied] = useState(false);
+  const [canAutoApply, setCanAutoApply] = useState(false);
+  const [applying, setApplying] = useState(false);
+  const [applyResult, setApplyResult] = useState<string | null>(null);
 
   useEffect(() => {
     if (params.id) {
       fetch(`/api/indeed/${params.id}`)
         .then((r) => r.json())
-        .then((d) => setJob(d.job));
+        .then((d) => {
+          setJob(d.job);
+          setCanAutoApply(Boolean(d.canAutoApply));
+        });
     }
   }, [params.id]);
 
@@ -29,6 +35,20 @@ export default function IndeedJobDetailPage() {
         <h2 className="text-3xl font-bold">Loading...</h2>
       </div>
     );
+  }
+
+  async function handleAutoApply() {
+    setApplying(true);
+    setApplyResult(null);
+    try {
+      const res = await fetch(`/api/jobs/${params.id}/apply`, { method: "POST" });
+      const data = await res.json();
+      setApplyResult(data.result?.outcome ?? data.error ?? "unknown");
+    } catch {
+      setApplyResult("failed");
+    } finally {
+      setApplying(false);
+    }
   }
 
   function handleCopyUrl() {
@@ -105,6 +125,14 @@ export default function IndeedJobDetailPage() {
           <Copy className="mr-1 h-3 w-3" />
           {copied ? "Copied!" : "Copy URL"}
         </Button>
+        {canAutoApply && (
+          <Button size="lg" onClick={handleAutoApply} disabled={applying}>
+            {applying ? "Applying…" : "Auto-Apply"}
+          </Button>
+        )}
+        {applyResult && (
+          <span className="text-sm text-muted-foreground">Result: {applyResult}</span>
+        )}
         {job.applyUrl && (
           <span className="text-xs text-muted-foreground truncate max-w-[400px]">
             {job.applyUrl}

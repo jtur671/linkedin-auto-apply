@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { applierFor } from "@/lib/sources/registry";
 
 export async function GET(
   _request: Request,
@@ -25,5 +26,19 @@ export async function GET(
     return NextResponse.json({ error: "Job not found" }, { status: 404 });
   }
 
-  return NextResponse.json({ job });
+  const canAutoApply =
+    applierFor({
+      source: job.source,
+      externalId: job.externalId,
+      title: job.title,
+      company: job.company,
+      location: job.location,
+      salary: job.salary,
+      jobType: job.jobType,
+      url: job.url,
+      applyUrl: job.applyUrl,
+      description: job.descriptionRaw,
+    }) !== null;
+
+  return NextResponse.json({ job, canAutoApply });
 }
