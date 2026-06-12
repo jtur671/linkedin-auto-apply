@@ -45,7 +45,7 @@ export function mapAdzunaResult(r: AdzunaRawResult): NormalizedJob {
     salary: formatSalary(r.salary_min, r.salary_max, isPredictedSalary(r.salary_is_predicted)),
     jobType: r.contract_time ?? r.contract_type ?? null,
     url,
-    applyUrl: url,
+    applyUrl: url || null,
     description: r.description?.trim() || "",
   };
 }

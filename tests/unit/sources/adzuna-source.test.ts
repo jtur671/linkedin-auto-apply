@@ -12,6 +12,15 @@ describe("adzunaSource", () => {
     expect(typeof adzunaSource.search).toBe("function");
   });
 
+  it("isConfigured() reflects whether both credentials are present", () => {
+    vi.stubEnv("ADZUNA_APP_ID", "id123");
+    vi.stubEnv("ADZUNA_APP_KEY", "key456");
+    expect(adzunaSource.isConfigured()).toBe(true);
+
+    vi.stubEnv("ADZUNA_APP_KEY", "");
+    expect(adzunaSource.isConfigured()).toBe(false);
+  });
+
   it("translates criteria and returns canonical jobs", async () => {
     vi.stubEnv("ADZUNA_APP_ID", "id123");
     vi.stubEnv("ADZUNA_APP_KEY", "key456");

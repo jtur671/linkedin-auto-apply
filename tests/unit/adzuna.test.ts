@@ -56,7 +56,7 @@ describe("mapAdzunaResult", () => {
     expect(job.url).toBe("");
     expect(job.description).toBe("");
     expect(job.source).toBe("adzuna");
-    expect(job.applyUrl).toBe("");
+    expect(job.applyUrl).toBeNull();
   });
 });
 
