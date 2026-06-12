@@ -64,3 +64,6 @@ prisma/dev.db.*
 
 # User uploads (resumes)
 uploads/
+
+# Visual brainstorm companion
+.superpowers/
