@@ -1,0 +1,38 @@
+import { chromium, type Page } from "playwright";
+import { matchField } from "@/lib/field-matcher";
+import type { ApplicantProfile, ApplyResult, NormalizedJob } from "./types";
+
+async function fillIf(page: Page, selector: string, value: string | null) {
+  if (value) await page.fill(selector, value);
+}
+
+/** Fills a Greenhouse-hosted application form on an already-loaded page. */
+export async function fillGreenhouseForm(page: Page, profile: ApplicantProfile): Promise<void> {
+  const get = (label: string) => matchField(label, "text", profile.answers);
+  await fillIf(page, "#first_name", get("first name"));
+  await fillIf(page, "#last_name", get("last name"));
+  await fillIf(page, "#email", profile.email);
+  await fillIf(page, "#phone", get("phone number"));
+  if (profile.resumePath) {
+    await page.setInputFiles("#resume", profile.resumePath).catch(() => {});
+  }
+  await page.click('#application_form button[type="submit"]');
+}
+
+/** Launches a browser, navigates the job's apply URL, fills, submits. */
+export async function browserApplyGreenhouse(
+  job: NormalizedJob,
+  profile: ApplicantProfile,
+): Promise<ApplyResult> {
+  const browser = await chromium.launch();
+  try {
+    const page = await browser.newPage();
+    await page.goto(job.applyUrl ?? job.url, { waitUntil: "domcontentloaded" });
+    await fillGreenhouseForm(page, profile);
+    return { outcome: "submitted", method: "browser" };
+  } catch (e) {
+    return { outcome: "failed", method: "browser", message: String(e) };
+  } finally {
+    await browser.close();
+  }
+}
