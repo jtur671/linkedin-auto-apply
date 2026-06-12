@@ -96,6 +96,7 @@ model DiscoveredJob {
   searchQuery    String
   applyOutcome   String?
   appliedAt      DateTime?
+  dismissedAt    DateTime?
   scrapedAt      DateTime         @default(now())
   createdAt      DateTime         @default(now())
   requirements   JobRequirement[]
