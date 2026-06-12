@@ -9,7 +9,7 @@ const navItems = [
   { href: "/", label: "Dashboard", icon: BarChart3 },
   { href: "/jobs", label: "Applied Jobs", icon: Briefcase },
   { href: "/review", label: "Needs Review", icon: AlertCircle },
-  { href: "/indeed", label: "Indeed Jobs", icon: Globe },
+  { href: "/indeed", label: "Adzuna Jobs", icon: Globe },
   { href: "/indeed/insights", label: "Job Insights", icon: TrendingUp },
   { href: "/seo", label: "Profile SEO", icon: Search },
   { href: "/config", label: "Configuration", icon: Settings },
