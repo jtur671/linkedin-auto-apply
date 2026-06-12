@@ -1,20 +1,23 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Nunito } from "next/font/google";
+import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import { LayoutShell } from "@/components/layout-shell";
 
-const inter = Inter({ subsets: ["latin"] });
+const nunito = Nunito({ subsets: ["latin"], weight: ["400", "600", "700", "800"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "LinkedIn Auto Apply",
-  description: "Automatically apply to Easy Apply jobs on LinkedIn",
+  title: "Scout — your job search, handled",
+  description: "Scout finds jobs across the web, scores them against your resume, and applies for you.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark">
-      <body className={inter.className}>
-        <LayoutShell>{children}</LayoutShell>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${nunito.variable} ${nunito.className}`}>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+          <LayoutShell>{children}</LayoutShell>
+        </ThemeProvider>
       </body>
     </html>
   );
