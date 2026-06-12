@@ -44,6 +44,8 @@ export default function IndeedJobDetailPage() {
       const res = await fetch(`/api/jobs/${params.id}/apply`, { method: "POST" });
       const data = await res.json();
       setApplyResult(data.result?.outcome ?? data.error ?? "unknown");
+      // Once submitted, hide the button so a second click can't round-trip to a 409.
+      if (data.result?.outcome === "submitted") setCanAutoApply(false);
     } catch {
       setApplyResult("failed");
     } finally {
