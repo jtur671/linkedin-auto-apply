@@ -17,6 +17,11 @@ describe("registry", () => {
     expect(applierFor(job("https://boards.greenhouse.io/acme/jobs/1"))?.id).toBe("greenhouse");
   });
 
+  it("routes lever and ashby jobs to their appliers", () => {
+    expect(applierFor(job("https://jobs.lever.co/acme/abc-123"))?.id).toBe("lever");
+    expect(applierFor(job("https://jobs.ashbyhq.com/acme/uuid-1"))?.id).toBe("ashby");
+  });
+
   it("returns null when no applier matches", () => {
     expect(applierFor(job("https://www.linkedin.com/jobs/view/1"))).toBeNull();
   });

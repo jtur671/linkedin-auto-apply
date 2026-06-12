@@ -102,6 +102,22 @@ describe("himalayasSource", () => {
     expect(j.description).toBe(""); // no description, no excerpt
   });
 
+  it("falls back to guid for url/applyUrl when applicationLink is absent", async () => {
+    vi.stubGlobal(
+      "fetch",
+      makeFetch([{ title: "QA", guid: "https://himalayas.app/jobs/qa-1" }]),
+    );
+    const jobs = await himalayasSource.search({ query: "" });
+    expect(jobs[0].url).toBe("https://himalayas.app/jobs/qa-1");
+    expect(jobs[0].applyUrl).toBe("https://himalayas.app/jobs/qa-1");
+  });
+
+  it("applyUrl is null (never empty string) when no link exists at all", async () => {
+    vi.stubGlobal("fetch", makeFetch([{ title: "QA" }]));
+    const jobs = await himalayasSource.search({ query: "" });
+    expect(jobs[0].applyUrl).toBeNull();
+  });
+
   // ── 4. throws on non-ok response ────────────────────────────────────────
   it("throws a clear error on non-ok HTTP response", async () => {
     vi.stubGlobal(

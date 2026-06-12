@@ -55,8 +55,13 @@ function mapUsajobsItem(item: UsajobsItem): NormalizedJob {
   const rem = d.PositionRemuneration;
   if (rem && rem.length > 0) {
     const r = rem[0];
-    const min = r.MinimumRange != null ? parseFloat(r.MinimumRange) : undefined;
-    const max = r.MaximumRange != null ? parseFloat(r.MaximumRange) : undefined;
+    // parseFloat("") is NaN, which would render as "NaN" — only keep finite values.
+    const toNum = (s?: string) => {
+      const n = parseFloat(s ?? "");
+      return Number.isFinite(n) ? n : undefined;
+    };
+    const min = toNum(r.MinimumRange);
+    const max = toNum(r.MaximumRange);
     if (min != null || max != null) {
       salary = formatSalary(min, max);
     }

@@ -43,6 +43,8 @@ describe("startIndeedScrape multi-source sweep", () => {
 
     const state = getIndeedState();
     expect(state.errors).toBe(1);
+    expect(state.searched).toBe(3);
+    expect(state.total).toBe(3);
     expect(state.status).toBe("idle");
   });
 });

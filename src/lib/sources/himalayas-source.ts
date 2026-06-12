@@ -19,7 +19,9 @@ interface HimalayasRawJob {
 }
 
 function mapHimalayasJob(r: HimalayasRawJob): NormalizedJob {
-  const applyUrl = r.applicationLink || null;
+  // guid is itself the himalayas.app listing URL, so it backstops a missing
+  // applicationLink — applyUrl must be a real link or null, never "".
+  const applyUrl = r.applicationLink || r.guid || null;
   const locationRestrictions = r.locationRestrictions ?? [];
   const location =
     locationRestrictions.length > 0

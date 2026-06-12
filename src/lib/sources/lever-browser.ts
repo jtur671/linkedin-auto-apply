@@ -1,4 +1,4 @@
-import { chromium, type Page } from "playwright";
+import { chromium, type Browser, type Page } from "playwright";
 import { matchField } from "@/lib/field-matcher";
 import type { ApplicantProfile, ApplyResult, NormalizedJob } from "./types";
 
@@ -49,8 +49,11 @@ export async function browserApplyLever(
   job: NormalizedJob,
   profile: ApplicantProfile,
 ): Promise<ApplyResult> {
-  const browser = await chromium.launch();
+  // launch() lives inside the try so a Playwright failure (missing browser
+  // binary etc.) returns "failed" instead of violating the never-throws contract.
+  let browser: Browser | undefined;
   try {
+    browser = await chromium.launch();
     const page = await browser.newPage();
     // Lever's posting page URL + "/apply" is the application form. Avoid doubling it.
     const base = job.applyUrl ?? job.url;
@@ -61,6 +64,6 @@ export async function browserApplyLever(
   } catch (e) {
     return { outcome: "failed", method: "browser", message: String(e) };
   } finally {
-    await browser.close();
+    await browser?.close();
   }
 }

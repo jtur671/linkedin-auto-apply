@@ -42,8 +42,8 @@ async function searchRemotive(criteria: JobSearchCriteria): Promise<NormalizedJo
       location: job.candidate_required_location ?? "",
       salary,
       jobType: job.job_type ?? null,
-      url: job.url,
-      applyUrl: job.url,
+      url: job.url ?? "",
+      applyUrl: job.url || null,
       description: job.description,
     };
   });
