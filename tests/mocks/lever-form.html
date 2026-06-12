@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <form id="application-form">
+      <input name="name" />
+      <input name="email" />
+      <input name="phone" />
+      <input name="org" />
+      <input name="resume" type="file" />
+      <button id="btn-submit" type="submit"
+        onclick="event.preventDefault(); document.body.setAttribute('data-submitted','1');">
+        Submit Application
+      </button>
+    </form>
+  </body>
+</html>
