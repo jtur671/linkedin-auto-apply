@@ -24,3 +24,18 @@ beforeEach(async () => {
     await prisma.$executeRawUnsafe(`DELETE FROM "${name}"`);
   }
 });
+
+// Block ALL real network in unit/integration tests. Tests that need HTTP must
+// stub fetch with vi.stubGlobal("fetch", ...). Anything reaching this guard is
+// an un-mocked call to a real host — fail loudly rather than, e.g., POST a real
+// job application to an employer. (Playwright specs run outside vitest and are
+// unaffected.)
+globalThis.fetch = (async (input: unknown) => {
+  const url =
+    typeof input === "string"
+      ? input
+      : String((input as { url?: string })?.url ?? input);
+  throw new Error(
+    `Blocked un-stubbed fetch in tests: ${url}. Stub it with vi.stubGlobal("fetch", ...).`,
+  );
+}) as typeof fetch;
