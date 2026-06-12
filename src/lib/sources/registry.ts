@@ -4,6 +4,7 @@ import { remotiveSource } from "./remotive-source";
 import { remoteOkSource } from "./remoteok-source";
 import { himalayasSource } from "./himalayas-source";
 import { usajobsSource } from "./usajobs-source";
+import { hiringCafeSource } from "./hiringcafe-source";
 import { greenhouseApplier } from "./greenhouse";
 import { leverApplier } from "./lever";
 import { ashbyApplier } from "./ashby";
@@ -14,6 +15,7 @@ const SOURCES: JobSource[] = [
   remoteOkSource,
   himalayasSource,
   usajobsSource,
+  hiringCafeSource,
 ];
 const APPLIERS: JobApplier[] = [greenhouseApplier, leverApplier, ashbyApplier];
 
