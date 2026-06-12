@@ -225,14 +225,16 @@ The Greenhouse browser filler runs against a **saved Greenhouse form HTML fixtur
 
 Capture one real Greenhouse board API response (`GET …/jobs/{id}?questions=true`) **once**, sanitize, and commit as a fixture so mapping/apply tests run against realistic question shapes. Same for the saved form HTML.
 
-### 8.6 Hard safety guarantee — no real submissions, ever
+### 8.6 The test suite never submits — but the product does
 
-- Global test setup installs a `fetch` guard that **throws** on any un-mocked request to `*.greenhouse.io` (or any real host). A real network call during tests fails loudly instead of leaking a submission.
-- No test path reaches a real `POST` to an employer. CI is fully offline.
+To be unambiguous: **the product applies to real jobs** — that is M1's entire purpose. The Apply button submits a real application to a real employer (and M3 later does it on a timer). This section is *only* about the automated **test suite**, which must not, because it runs constantly and repeatedly (every commit/CI run) and would otherwise fire the same junk applications at real companies, as you, with no way to retract.
+
+- Global test setup installs a `fetch` guard that **throws** on any un-mocked request to `*.greenhouse.io` (or any real host). A stray network call during a test fails loudly instead of leaking a real submission.
+- No *test* path reaches a real `POST` to an employer. CI is fully offline and deterministic.
 
 ### 8.7 Manual live-apply verification (opt-in, human-run, not CI)
 
-The *only* place a real submission happens: a documented checklist, gated behind an explicit `ALLOW_LIVE_APPLY=1` env flag, run by hand against a single known Greenhouse posting. Records outcome + screenshot. Never runs in automation.
+This is how we confirm the **real** apply path actually works, on purpose: a documented checklist, gated behind an explicit `ALLOW_LIVE_APPLY=1` env flag, run by hand against a single known Greenhouse posting. Records outcome + screenshot. It does a real submission — deliberately, once — and never runs in automation.
 
 ### 8.8 Definition of done
 
