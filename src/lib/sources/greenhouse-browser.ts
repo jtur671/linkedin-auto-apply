@@ -14,8 +14,12 @@ export async function fillGreenhouseForm(page: Page, profile: ApplicantProfile):
   await fillIf(page, "#email", profile.email);
   await fillIf(page, "#phone", get("phone number"));
   if (profile.resumePath) {
-    await page.setInputFiles("#resume", profile.resumePath).catch(() => {});
+    await page.setInputFiles("#resume", profile.resumePath).catch((err) => {
+      console.warn("[greenhouse] resume upload skipped:", err);
+    });
   }
+  // Submits after filling the standard fields. M1's browser fallback covers the
+  // standard Greenhouse fields only; custom per-board questions are not filled here.
   await page.click('#application_form button[type="submit"]');
 }
 
