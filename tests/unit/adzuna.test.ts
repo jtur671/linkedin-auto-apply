@@ -1,8 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { vi, afterEach } from "vitest";
-import { formatSalary } from "@/lib/jobs/adzuna";
-import { mapAdzunaResult, type AdzunaRawResult } from "@/lib/jobs/adzuna";
-import { searchAdzuna } from "@/lib/jobs/adzuna";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import { formatSalary, mapAdzunaResult, searchAdzuna, type AdzunaRawResult } from "@/lib/jobs/adzuna";
 
 describe("formatSalary", () => {
   it("formats a min–max range with thousands separators", () => {
@@ -79,7 +76,7 @@ describe("searchAdzuna", () => {
 
   it("builds the request URL and returns mapped jobs", async () => {
     stubEnv();
-    const fetchMock = vi.fn(async () => ({
+    const fetchMock = vi.fn(async (_url: string) => ({
       ok: true,
       json: async () => ({
         results: [
@@ -93,7 +90,7 @@ describe("searchAdzuna", () => {
 
     expect(jobs).toHaveLength(1);
     expect(jobs[0].title).toBe("QA");
-    const calledUrl = String((fetchMock.mock.calls[0] as unknown[])[0]);
+    const calledUrl = String(fetchMock.mock.lastCall![0]);
     expect(calledUrl).toContain("/v1/api/jobs/us/search/1");
     expect(calledUrl).toContain("app_id=id123");
     expect(calledUrl).toContain("app_key=key456");

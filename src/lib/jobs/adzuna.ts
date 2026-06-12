@@ -37,13 +37,18 @@ export interface NormalizedJob {
   description: string;
 }
 
+/** Adzuna returns salary_is_predicted as "1"/"0" (occasionally numeric/boolean). */
+function isPredictedSalary(flag?: string | number | boolean): boolean {
+  return flag === true || flag === 1 || flag === "1";
+}
+
 export function mapAdzunaResult(r: AdzunaRawResult): NormalizedJob {
   return {
     externalId: String(r.id),
     title: r.title?.trim() || "Untitled",
     company: r.company?.display_name?.trim() || "Unknown",
     location: r.location?.display_name?.trim() || "",
-    salary: formatSalary(r.salary_min, r.salary_max, !!Number(r.salary_is_predicted)),
+    salary: formatSalary(r.salary_min, r.salary_max, isPredictedSalary(r.salary_is_predicted)),
     jobType: r.contract_time ?? r.contract_type ?? null,
     url: r.redirect_url ?? "",
     description: r.description?.trim() || "",
