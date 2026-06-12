@@ -1,5 +1,7 @@
 import { matchField } from "@/lib/field-matcher";
-import type { ApplicantProfile } from "./types";
+import type { ApplicantProfile, ApplyResult, JobApplier, NormalizedJob } from "./types";
+import { isGreenhouseUrl, parseGreenhouseUrl } from "./greenhouse-url";
+import { browserApplyGreenhouse } from "./greenhouse-browser";
 
 export interface GreenhouseField {
   name: string;
@@ -32,3 +34,42 @@ export function mapGreenhouseAnswers(
   }
   return { fields, missingRequired };
 }
+
+const BOARDS_API = "https://boards-api.greenhouse.io/v1/boards";
+
+export const greenhouseApplier: JobApplier = {
+  id: "greenhouse",
+  canApply(job: NormalizedJob): boolean {
+    return isGreenhouseUrl(job.applyUrl ?? job.url);
+  },
+  async apply(job: NormalizedJob, profile: ApplicantProfile): Promise<ApplyResult> {
+    const parsed = parseGreenhouseUrl(job.applyUrl ?? job.url);
+    if (!parsed) return { outcome: "failed", method: "api", message: "Unrecognized Greenhouse URL" };
+    const { token, jobId } = parsed;
+
+    let questions: GreenhouseQuestion[];
+    try {
+      const res = await fetch(`${BOARDS_API}/${token}/jobs/${jobId}?questions=true`);
+      if (!res.ok) return { outcome: "failed", method: "api", message: `Board fetch ${res.status}` };
+      questions = ((await res.json()) as { questions?: GreenhouseQuestion[] }).questions ?? [];
+    } catch (e) {
+      return { outcome: "failed", method: "api", message: String(e) };
+    }
+
+    const { fields, missingRequired } = mapGreenhouseAnswers(questions, profile);
+    if (missingRequired.length) {
+      return { outcome: "needs_review", method: "api", message: `Unanswered required: ${missingRequired.join(", ")}` };
+    }
+
+    const submit = await fetch(`${BOARDS_API}/${token}/jobs/${jobId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...fields, email: profile.email }),
+    });
+    if (submit.status === 401 || submit.status === 403) {
+      return browserApplyGreenhouse(job, profile); // board requires auth — use the form
+    }
+    if (!submit.ok) return { outcome: "failed", method: "api", message: `Submit ${submit.status}` };
+    return { outcome: "submitted", method: "api" };
+  },
+};
