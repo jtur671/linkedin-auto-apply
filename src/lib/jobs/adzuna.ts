@@ -49,3 +49,53 @@ export function mapAdzunaResult(r: AdzunaRawResult): NormalizedJob {
     description: r.description?.trim() || "",
   };
 }
+
+const ADZUNA_BASE = "https://api.adzuna.com/v1/api/jobs";
+
+export interface AdzunaConfig {
+  appId: string;
+  appKey: string;
+  country: string;
+}
+
+export function getAdzunaConfig(): AdzunaConfig {
+  return {
+    appId: process.env.ADZUNA_APP_ID ?? "",
+    appKey: process.env.ADZUNA_APP_KEY ?? "",
+    country: (process.env.ADZUNA_COUNTRY ?? "us").toLowerCase(),
+  };
+}
+
+export interface AdzunaSearchParams {
+  what: string;
+  where?: string;
+  resultsPerPage?: number;
+  maxDaysOld?: number;
+}
+
+export async function searchAdzuna(
+  params: AdzunaSearchParams,
+): Promise<NormalizedJob[]> {
+  const { appId, appKey, country } = getAdzunaConfig();
+  if (!appId || !appKey) {
+    throw new Error(
+      "Adzuna credentials missing. Set ADZUNA_APP_ID and ADZUNA_APP_KEY in your .env file.",
+    );
+  }
+  const url = new URL(`${ADZUNA_BASE}/${country}/search/1`);
+  url.searchParams.set("app_id", appId);
+  url.searchParams.set("app_key", appKey);
+  url.searchParams.set("results_per_page", String(params.resultsPerPage ?? 50));
+  url.searchParams.set("what", params.what);
+  if (params.where) url.searchParams.set("where", params.where);
+  if (params.maxDaysOld) url.searchParams.set("max_days_old", String(params.maxDaysOld));
+  url.searchParams.set("content-type", "application/json");
+
+  const res = await fetch(url.toString());
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(`Adzuna API error ${res.status}: ${body}`);
+  }
+  const data = (await res.json()) as { results?: AdzunaRawResult[] };
+  return (data.results ?? []).map(mapAdzunaResult);
+}

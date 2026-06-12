@@ -58,3 +58,53 @@ describe("mapAdzunaResult", () => {
     expect(job.description).toBe("");
   });
 });
+
+describe("searchAdzuna", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
+  });
+
+  function stubEnv() {
+    vi.stubEnv("ADZUNA_APP_ID", "id123");
+    vi.stubEnv("ADZUNA_APP_KEY", "key456");
+    vi.stubEnv("ADZUNA_COUNTRY", "us");
+  }
+
+  it("throws a clear error when credentials are missing", async () => {
+    vi.stubEnv("ADZUNA_APP_ID", "");
+    vi.stubEnv("ADZUNA_APP_KEY", "");
+    await expect(searchAdzuna({ what: "qa" })).rejects.toThrow(/ADZUNA_APP_ID/);
+  });
+
+  it("builds the request URL and returns mapped jobs", async () => {
+    stubEnv();
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        results: [
+          { id: "1", title: "QA", company: { display_name: "Co" }, location: { display_name: "Remote" }, redirect_url: "u", description: "d" },
+        ],
+      }),
+    }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const jobs = await searchAdzuna({ what: "qa engineer", where: "Austin", resultsPerPage: 50 });
+
+    expect(jobs).toHaveLength(1);
+    expect(jobs[0].title).toBe("QA");
+    const calledUrl = String((fetchMock.mock.calls[0] as unknown[])[0]);
+    expect(calledUrl).toContain("/v1/api/jobs/us/search/1");
+    expect(calledUrl).toContain("app_id=id123");
+    expect(calledUrl).toContain("app_key=key456");
+    expect(calledUrl).toContain("what=qa+engineer");
+    expect(calledUrl).toContain("where=Austin");
+    expect(calledUrl).toContain("results_per_page=50");
+  });
+
+  it("throws on non-ok responses", async () => {
+    stubEnv();
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: false, status: 429, text: async () => "rate limited" })));
+    await expect(searchAdzuna({ what: "qa" })).rejects.toThrow(/429/);
+  });
+});
