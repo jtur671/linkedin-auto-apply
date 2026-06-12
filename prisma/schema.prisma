@@ -79,9 +79,10 @@ model Resume {
   uploadedAt DateTime @default(now())
 }
 
-model IndeedJob {
-  id             Int                @id @default(autoincrement())
-  indeedJobId    String             @unique
+model DiscoveredJob {
+  id             Int              @id @default(autoincrement())
+  source         String           @default("adzuna")
+  externalId     String
   title          String
   company        String
   location       String
@@ -93,18 +94,22 @@ model IndeedJob {
   matchScore     Int?
   matchSummary   String?
   searchQuery    String
-  scrapedAt      DateTime           @default(now())
-  createdAt      DateTime           @default(now())
-  requirements   IndeedRequirement[]
+  applyOutcome   String?
+  appliedAt      DateTime?
+  scrapedAt      DateTime         @default(now())
+  createdAt      DateTime         @default(now())
+  requirements   JobRequirement[]
+
+  @@unique([source, externalId])
 }
 
-model IndeedRequirement {
-  id          Int       @id @default(autoincrement())
+model JobRequirement {
+  id          Int           @id @default(autoincrement())
   jobId       Int
-  job         IndeedJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  job         DiscoveredJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
   category    String
   requirement String
-  isRequired  Boolean   @default(true)
-  matched     Boolean   @default(false)
-  createdAt   DateTime  @default(now())
+  isRequired  Boolean       @default(true)
+  matched     Boolean       @default(false)
+  createdAt   DateTime      @default(now())
 }

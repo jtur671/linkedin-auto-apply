@@ -65,7 +65,7 @@ export async function scoreJobMatch(jobId: number): Promise<void> {
   const answers = await prisma.profileAnswer.findMany();
 
   // Load job requirements
-  const requirements = await prisma.indeedRequirement.findMany({
+  const requirements = await prisma.jobRequirement.findMany({
     where: { jobId },
   });
 
@@ -86,7 +86,7 @@ export async function scoreJobMatch(jobId: number): Promise<void> {
   );
 
   // Update job with score
-  await prisma.indeedJob.update({
+  await prisma.discoveredJob.update({
     where: { id: jobId },
     data: {
       matchScore: result.score,
@@ -99,7 +99,7 @@ export async function scoreJobMatch(jobId: number): Promise<void> {
   for (let i = 0; i < requirements.length; i++) {
     const isMatched = matchedIndices.has(i + 1);
     if (requirements[i].matched !== isMatched) {
-      await prisma.indeedRequirement.update({
+      await prisma.jobRequirement.update({
         where: { id: requirements[i].id },
         data: { matched: isMatched },
       });
@@ -108,7 +108,7 @@ export async function scoreJobMatch(jobId: number): Promise<void> {
 }
 
 export async function scoreAllUnscored(): Promise<number> {
-  const unscoredJobs = await prisma.indeedJob.findMany({
+  const unscoredJobs = await prisma.discoveredJob.findMany({
     where: { matchScore: null },
     select: { id: true },
   });

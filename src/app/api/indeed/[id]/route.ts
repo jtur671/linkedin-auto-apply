@@ -12,7 +12,7 @@ export async function GET(
     return NextResponse.json({ error: "Invalid id" }, { status: 400 });
   }
 
-  const job = await prisma.indeedJob.findUnique({
+  const job = await prisma.discoveredJob.findUnique({
     where: { id: jobId },
     include: {
       requirements: {

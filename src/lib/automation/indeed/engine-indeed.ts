@@ -28,8 +28,8 @@ export async function startIndeedScrape(): Promise<void> {
       return;
     }
 
-    const existing = await prisma.indeedJob.findMany({ select: { indeedJobId: true } });
-    const seenIds = new Set(existing.map((j) => j.indeedJobId));
+    const existing = await prisma.discoveredJob.findMany({ select: { source: true, externalId: true } });
+    const seenIds = new Set(existing.map((j) => `${j.source}:${j.externalId}`));
 
     const savedJobIds: number[] = [];
     for (const config of configs) {

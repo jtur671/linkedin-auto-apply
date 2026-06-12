@@ -38,7 +38,7 @@ describe("adzunaSource", () => {
     expect(jobs).toHaveLength(1);
     expect(jobs[0].source).toBe("adzuna");
     expect(jobs[0].applyUrl).toBe("https://a/1");
-    const calledUrl = String(fetchMock.mock.lastCall![0]);
+    const calledUrl = String((fetchMock.mock.lastCall as unknown[])[0]);
     expect(calledUrl).toContain("what=qa");
     expect(calledUrl).toContain("where=Austin");
     expect(calledUrl).toContain("results_per_page=25");

@@ -9,7 +9,7 @@ export async function GET(req: Request) {
   const where = category ? { category } : {};
 
   // Get all requirements grouped by text
-  const requirements = await prisma.indeedRequirement.findMany({
+  const requirements = await prisma.jobRequirement.findMany({
     where,
     select: {
       requirement: true,
@@ -53,7 +53,7 @@ export async function GET(req: Request) {
     .sort((a, b) => b.count - a.count)
     .slice(0, limit);
 
-  const totalJobs = await prisma.indeedJob.count();
+  const totalJobs = await prisma.discoveredJob.count();
 
   return NextResponse.json({
     insights: sorted.map((item) => ({

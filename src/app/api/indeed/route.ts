@@ -23,14 +23,14 @@ export async function GET(req: Request) {
       : [{ scrapedAt: "desc" as const }];
 
   const [jobs, total] = await Promise.all([
-    prisma.indeedJob.findMany({
+    prisma.discoveredJob.findMany({
       where,
       orderBy,
       take: limit,
       skip: offset,
       include: { requirements: { select: { id: true } } },
     }),
-    prisma.indeedJob.count({ where }),
+    prisma.discoveredJob.count({ where }),
   ]);
 
   return NextResponse.json({

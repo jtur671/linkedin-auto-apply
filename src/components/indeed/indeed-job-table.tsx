@@ -12,7 +12,7 @@ import { MatchBadge } from "./match-badge";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 
-interface IndeedJob {
+interface DiscoveredJob {
   id: number;
   title: string;
   company: string;
@@ -25,7 +25,7 @@ interface IndeedJob {
   scrapedAt: string;
 }
 
-export function IndeedJobTable({ jobs }: { jobs: IndeedJob[] }) {
+export function IndeedJobTable({ jobs }: { jobs: DiscoveredJob[] }) {
   if (jobs.length === 0) {
     return (
       <div className="py-8 text-center text-muted-foreground">
