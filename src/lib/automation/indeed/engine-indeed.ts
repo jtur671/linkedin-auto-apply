@@ -1,5 +1,6 @@
 // src/lib/automation/indeed/engine-indeed.ts
-import { searchAdzuna, type NormalizedJob } from "@/lib/jobs/adzuna";
+import { registeredSources } from "@/lib/sources/registry";
+import type { JobSource, NormalizedJob } from "@/lib/sources/types";
 import { ingestJobs } from "@/lib/jobs/ingest";
 import { scoreJobMatch } from "./match-scorer";
 import {
@@ -10,7 +11,11 @@ import {
 import { AutomationLogger } from "@/lib/logging/logger";
 import { prisma } from "@/lib/db";
 
-export async function startIndeedScrape(): Promise<void> {
+export async function startIndeedScrape(
+  // Injectable for tests; defaults to every registered source with credentials.
+  sources?: JobSource[],
+): Promise<void> {
+  const activeSources = sources ?? registeredSources().filter((s) => s.isConfigured());
   const logger = new AutomationLogger();
   logger.log({ action: "indeed_start" });
   resetIndeedState();
@@ -35,26 +40,31 @@ export async function startIndeedScrape(): Promise<void> {
     for (const config of configs) {
       if (getIndeedState().status === "stopping") break;
 
-      let jobs: NormalizedJob[];
-      try {
-        jobs = await searchAdzuna({
-          what: config.keywords,
-          where: config.location || undefined,
-          resultsPerPage: 50,
-        });
-      } catch (err) {
-        updateIndeedState({ errors: getIndeedState().errors + 1 });
-        logger.log({ action: "indeed_error", reason: String(err) });
-        continue;
-      }
-      updateIndeedState({ searched: getIndeedState().searched + jobs.length });
+      // Sweep every configured source; one failing source must not kill the run.
+      for (const source of activeSources) {
+        if (getIndeedState().status === "stopping") break;
 
-      const ids = await ingestJobs(jobs, config.keywords, seenIds);
-      savedJobIds.push(...ids);
-      updateIndeedState({
-        scraped: getIndeedState().scraped + ids.length,
-        total: getIndeedState().total + jobs.length,
-      });
+        let jobs: NormalizedJob[];
+        try {
+          jobs = await source.search({
+            query: config.keywords,
+            location: config.location || undefined,
+            limit: 50,
+          });
+        } catch (err) {
+          updateIndeedState({ errors: getIndeedState().errors + 1 });
+          logger.log({ action: "indeed_error", reason: `${source.id}: ${String(err)}` });
+          continue;
+        }
+        updateIndeedState({ searched: getIndeedState().searched + jobs.length });
+
+        const ids = await ingestJobs(jobs, config.keywords, seenIds);
+        savedJobIds.push(...ids);
+        updateIndeedState({
+          scraped: getIndeedState().scraped + ids.length,
+          total: getIndeedState().total + jobs.length,
+        });
+      }
     }
 
     // Phase: AI match scoring (unchanged behavior)
