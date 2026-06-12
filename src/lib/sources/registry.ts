@@ -5,11 +5,12 @@ import { greenhouseApplier } from "./greenhouse";
 const SOURCES: JobSource[] = [adzunaSource];
 const APPLIERS: JobApplier[] = [greenhouseApplier];
 
+// Return copies so callers can't mutate the registry's module-level state.
 export function registeredSources(): JobSource[] {
-  return SOURCES;
+  return [...SOURCES];
 }
 export function registeredAppliers(): JobApplier[] {
-  return APPLIERS;
+  return [...APPLIERS];
 }
 export function applierFor(
   job: NormalizedJob,
