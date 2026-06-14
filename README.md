@@ -1,228 +1,88 @@
 <div align="center">
 
-# LinkedIn Auto Apply
+# 🟢 Scout
 
-**Stop applying manually. Let the bot do it.**
+**My job search, on autopilot.**
 
-[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://typescriptlang.org)
-[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org)
-[![Playwright](https://img.shields.io/badge/Playwright-1.59-2EAD33?logo=playwright&logoColor=white)](https://playwright.dev)
-
-A full-stack automation tool that applies to LinkedIn "Easy Apply" jobs for you and audits your profile for recruiter SEO — with a real-time dashboard, AI-powered profile optimization, and zero cloud dependencies. Everything runs locally on your machine.
+Scout finds jobs across the web, scores them against my resume, and applies for me — so I spend my time on interviews, not job boards.
 
 </div>
 
----
-
-## How It Works
-
-```
-You configure it  -->  It searches LinkedIn  -->  It fills out forms  -->  You get interviews
-```
-
-1. Enter your LinkedIn credentials (encrypted locally with AES-256-GCM)
-2. Set up search filters — job titles, location, remote preference, experience level
-3. Pre-fill your common answers — phone, years of experience, work authorization, etc.
-4. Hit **Start** on the dashboard and walk away
-
-The bot opens a real Chromium browser, logs into LinkedIn, searches for matching Easy Apply jobs, fills out every form step, and submits. It skips jobs it can't fully fill and queues them for your manual review — with screenshots.
+> **Personal project.** Scout is built for me, to get me a job. It isn't a product — there's no install-it-yourself path, no support, no public landing page. Everything runs locally on my machine.
 
 ---
 
-## What You Get
+## What it does
 
-### Real-Time Dashboard
-Live stats updating every 5 seconds — applications today, this week, all time, top companies, error counts. Start and stop automation right from the dashboard.
+A pipeline: **discover → score → apply → review.**
 
-### Intelligent Form Filling
-Handles text fields, dropdowns, radio buttons, checkboxes, file uploads, and LinkedIn's custom components. Uses fuzzy matching with 50+ label aliases so "Phone number", "Mobile phone", and "Your contact number" all resolve to the same answer.
+- **Discover** — one sweep pulls listings from many sources by API: Adzuna, Remotive, RemoteOK, Himalayas, USAJOBS, and Hiring Cafe (which surfaces direct ATS apply links). New jobs are normalized into one shape and de-duped across sources by `(source, externalId)`.
+- **Score** — an AI pass ranks each job against my resume + saved preferences and writes a match score + summary.
+- **Apply** — for jobs an applier supports, Scout submits for me:
+  - **Greenhouse** — via the board API, falling back to filling the hosted form in a browser.
+  - **Lever** — fills the hosted form in a browser.
+  - **LinkedIn Easy Apply** — drives a real Chromium session through multi-step forms, rate-limit aware.
+  - **Ashby** — recognized and queued for me (no clean anonymous submit path yet).
+- **Review** — anything it can't safely finish lands in a queue on Home for a one-tap "Your call."
 
-### Smart Dropdown Matching
-Matches your answers to dropdown options with fuzzy logic — including numeric range matching. Answer "5" and it'll correctly select "3-5 years" or "5+" from a dropdown.
+Plus a **Profile** tool that audits my LinkedIn profile for recruiter keywords and rewrites sections (OpenAI or Gemini, my key).
 
-### Cookie-First Auth
-Logs in once, saves session cookies, reuses them on every subsequent run. No credentials sent unless the session expires. Handles 2FA and CAPTCHA detection — pauses and waits for you to complete the challenge.
+## The app
 
-### Rate Limit Detection
-Detects LinkedIn's daily submission cap before and after clicking Apply. Stops automatically so your account stays safe. Human-like delays (5-12s between applications, 3-6s between searches) keep things under the radar.
+Local web app at `http://localhost:3000`, four places:
 
-### Needs Review Queue
-Jobs with unknown form fields get flagged with screenshots showing exactly what the bot couldn't fill. One click to open the job on LinkedIn and apply manually.
+| Page | What |
+|---|---|
+| **Home** | "Your picks today" queue + "while you were away" activity; the status pill starts/stops the discovery sweep |
+| **Jobs** | Everything found / applied / passed, in tabs |
+| **Profile** | Recruiter-SEO audit + section rewrites |
+| **Settings** | Credentials, searches, answers, AI provider, resume, theme, raw logs |
 
-### Structured Logging
-Every action is logged as JSONL — timestamps, job details, durations, error reasons, screenshot paths. Export logs for analysis or feed them to an LLM.
-
-### Profile SEO Audit
-AI-powered profile analysis that scores your headline, about section, experience, and skills against target recruiter keywords. Get a scored report card with surgical callouts ("headline missing keyword X") and on-demand rewrites per section. Configurable between OpenAI and Google Gemini — bring your own API key.
-
-### Guided Onboarding
-5-step wizard with curated job category presets (QA, Engineering, Data, Product, Design) and optional AI provider setup so you're ready to go from the start.
-
----
-
-## Quick Start
-
-### Prerequisites
-
-- Node.js 18+
-- npm
-
-### Install
+## Run it
 
 ```bash
-git clone https://github.com/jtur671/linkedin-auto-apply.git
-cd linkedin-auto-apply
 npm install
 npx playwright install chromium
+cp .env.example .env                 # fill in the keys below
+npx prisma generate && npx prisma db push
+npm run dev                          # http://localhost:3000
 ```
 
-### Configure
+`.env` keys:
+- `ENCRYPTION_KEY` — 32-byte hex for credentials at rest: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
+- `ADZUNA_APP_ID` / `ADZUNA_APP_KEY` / `ADZUNA_COUNTRY` — Adzuna search (free dev key)
+- `USAJOBS_API_KEY` / `USAJOBS_USER_AGENT` — optional; the USAJOBS source is skipped if unset
+- `AI_PROVIDER` (`openai` | `gemini`) + `AI_API_KEY` — match scoring + profile audits
+- `DATABASE_URL` — local SQLite file (see `.env.example`)
+
+First run, the onboarding wizard ("Hi, I'm Scout 👋") walks through credentials, searches, and answers.
+
+## How it's built
+
+- **Next.js 16 / React 19 / Tailwind 4**, **SQLite via Prisma**, **Playwright** for browser work, **TypeScript** throughout. Runs entirely local; the only outbound calls are to job-source APIs and my chosen AI provider.
+- **Source-adapter contract** (`src/lib/sources/`) — every job site is a small plugin: a `JobSource` (search) and/or `JobApplier` (apply), registered in `registry.ts` and routed by URL host. Adding a site = one file, guarded by a reusable conformance suite.
+- **LinkedIn Easy Apply engine** (`src/lib/automation/`) — cookie-first login (2FA/CAPTCHA aware), search + pagination, multi-step form filling with fuzzy field matching, rate-limit detection.
+- **Scout UI** (`src/app`, `src/components/scout`) — the four pages above; plain-English status copy in `src/lib/ui/outcome-copy.ts`.
+- **Design history** — the specs and step-by-step plans behind each milestone live in `docs/superpowers/specs` and `docs/superpowers/plans`.
+
+## Tests
 
 ```bash
-cp .env.example .env
+npm test                  # unit + integration (vitest)
+npm run test:e2e          # Playwright UI flows
+npm run test:automation   # browser fillers against local mock pages
 ```
 
-Generate an encryption key and paste it into `.env`:
+No test ever submits a real application — a fetch guard blocks un-mocked network across the suite. Real submissions happen only when I use the app, or via the deliberate, opt-in `ALLOW_LIVE_APPLY` manual check.
 
-```bash
-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-```
+## Roadmap
 
-### Set Up Database
+- **Done** — multi-source discovery, AI match scoring, Greenhouse / Lever / LinkedIn apply, and the Scout redesign.
+- **Next (M3)** — hands-off engine: a scheduled sweep that auto-submits strong matches and queues the maybes (tiered), plus parallelizing the currently-sequential match scorer.
+- **Later (M4)** — LinkedIn outreach: find recruiters for target roles, connect, send an AI-personalized note.
 
-```bash
-npx prisma generate
-npx prisma db push
-```
+## Notes to self
 
-### Run
-
-```bash
-npm run dev
-```
-
-Open **http://localhost:3000** — the onboarding wizard will walk you through the rest.
-
----
-
-## Dashboard Pages
-
-| Page | What It Does |
-|---|---|
-| **Dashboard** | Live stats, top companies chart, start/stop automation |
-| **Applied Jobs** | Searchable table of every application with status badges |
-| **Needs Review** | Jobs the bot skipped — with screenshots and skip reasons |
-| **Profile SEO** | AI-powered profile audit with scores, callouts, and rewrites |
-| **Configuration** | Manage credentials, search filters, profile answers, and AI provider |
-| **Logs** | Filterable log viewer with JSONL export |
-
----
-
-## How the Automation Works
-
-```
-Engine starts
-  |
-  ├─ Login (cookies first, credentials fallback, 2FA/CAPTCHA wait)
-  |
-  ├─ For each search config:
-  |    ├─ Build LinkedIn search URL with filters
-  |    ├─ Paginate through results (up to 250 jobs per search)
-  |    ├─ Filter to Easy Apply only
-  |    └─ For each job:
-  |         ├─ Dedup check (skip if already applied)
-  |         ├─ Rate limit check (stop if capped)
-  |         ├─ Click Easy Apply
-  |         ├─ Fill form steps (up to 10 pages)
-  |         ├─ Submit application
-  |         └─ Log result + screenshot on failure
-  |
-  └─ Stop at 25 applications or rate limit
-```
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Framework | Next.js 16 (App Router) |
-| UI | React 19 + Tailwind CSS 4 + shadcn/ui |
-| Automation | Playwright (Chromium) |
-| Database | SQLite via Prisma ORM |
-| AI | OpenAI GPT-5.3 Instant or Google Gemini 3 Flash (configurable) |
-| Encryption | AES-256-GCM (credentials at rest) |
-| Testing | Vitest + Playwright Test |
-| Language | TypeScript |
-
-Everything runs locally. The only external call is to your chosen AI provider for profile audits — and that's optional.
-
----
-
-## Project Structure
-
-```
-src/
-  app/                        # Pages and API routes
-    api/                      # REST endpoints
-    seo/                      # Profile SEO audit page
-    config/                   # Settings page
-    jobs/                     # Applied jobs list
-    logs/                     # Log viewer
-    onboarding/               # Setup wizard
-    review/                   # Manual review queue
-
-  components/                 # React components
-    automation/               # Status indicator, controls
-    seo/                      # Audit report, section cards, keyword input
-    config/                   # Credential, search, profile, AI provider forms
-    dashboard/                # Stats cards, charts, badges
-    onboarding/               # Wizard steps + progress bar
-    ui/                       # shadcn/ui primitives
-
-  lib/
-    automation/
-      engine.ts               # Main orchestrator
-      login.ts                # Cookie-first auth + 2FA handling
-      search.ts               # Job search + pagination
-      apply.ts                # Easy Apply flow + rate limit detection
-      form-filler.ts          # Multi-type form field handler
-      dropdown-handler.ts     # Fuzzy dropdown option matching
-      screenshot.ts           # Error screenshot capture
-      state.ts                # In-memory run state
-    seo/
-      scraper.ts              # Headless Playwright profile scraper
-      analyzer.ts             # AI provider routing + prompt construction
-      types.ts                # Shared types
-    logging/                  # Structured JSONL logger + reader
-    encryption/               # AES-256-GCM crypto
-    field-matcher.ts          # Fuzzy label matching with 50+ aliases
-    filter-builder.ts         # LinkedIn search URL builder
-    dedup.ts                  # Duplicate application prevention
-
-prisma/schema.prisma          # 6 models: Job, SearchConfig, ProfileAnswer, Credential, AutomationLog, SeoAudit
-tests/                        # Unit, integration, E2E, and automation engine tests
-```
-
----
-
-## Testing
-
-```bash
-npm test                  # Unit + integration tests
-npm run test:e2e          # End-to-end tests
-npm run test:automation   # Automation engine tests against mock LinkedIn pages
-```
-
----
-
-## Disclaimer
-
-This tool automates actions on LinkedIn. Use it responsibly and in accordance with LinkedIn's Terms of Service. The authors are not responsible for any consequences of using this tool, including account restrictions.
-
----
-
-## License
-
-MIT — see [LICENSE](LICENSE) for details.
+- Single user, local, my own accounts — optimize for results; ban risk is low at my volume.
+- Live-apply DOM selectors for Greenhouse/Lever hosted forms are unit-tested against mock forms; confirm against a real posting with `ALLOW_LIVE_APPLY=1` before trusting a new board.
+- The old public-distribution scaffolding (installer scripts, `public/` landing, AdSense, MIT framing) is **paused** — left in the repo, no longer maintained.
