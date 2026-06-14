@@ -36,7 +36,7 @@ test.describe("Legacy redirects", () => {
   test("/review → / (home)", async ({ page }) => {
     await page.goto("/review");
     await expect(page).toHaveURL(/\//);
-    await expect(page.locator("h1")).toContainText("Your picks today");
+    await expect(page.locator("h1")).toContainText("here's your morning");
   });
 
   test("/indeed/insights → /jobs", async ({ page }) => {

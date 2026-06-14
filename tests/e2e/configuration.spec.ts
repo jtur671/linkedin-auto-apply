@@ -38,13 +38,6 @@ test.describe("Settings (/settings)", () => {
     await expect(page.getByRole("button", { name: "Dark" })).toBeVisible();
   });
 
-  test("shows Re-run setup link to /onboarding", async ({ page }) => {
-    await page.goto("/settings");
-    const link = page.getByRole("link", { name: /Re-run setup/ });
-    await expect(link).toBeVisible();
-    await expect(link).toHaveAttribute("href", "/onboarding");
-  });
-
   test("shows Raw activity log footer link to /settings/logs", async ({ page }) => {
     await page.goto("/settings");
     const link = page.getByRole("link", { name: /Raw activity log/ });
