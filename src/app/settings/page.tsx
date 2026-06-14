@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/components/theme-provider";
 import Link from "next/link";
 import { CredentialsForm } from "@/components/config/credentials-form";
 import { SearchConfigForm } from "@/components/config/search-config-form";
