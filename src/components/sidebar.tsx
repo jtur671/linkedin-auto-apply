@@ -18,17 +18,25 @@ function useQueueCount() {
   const [count, setCount] = useState<number | null>(null);
 
   useEffect(() => {
-    (async () => {
+    let alive = true;
+    const load = async () => {
       try {
         const res = await fetch("/api/queue");
-        if (!res.ok) return; // route may not be live yet
+        if (!res.ok) return;
         const data = await res.json();
         const jobs = Array.isArray(data.jobs) ? data.jobs : [];
-        setCount(jobs.length);
+        if (alive) setCount(jobs.length);
       } catch {
-        // guard: /api/queue hasn't landed yet from parallel agent
+        // queue unavailable — leave the badge as-is
       }
-    })();
+    };
+    load();
+    // Poll so the badge tracks the queue as it drains (the sidebar persists across nav).
+    const id = setInterval(load, 5000);
+    return () => {
+      alive = false;
+      clearInterval(id);
+    };
   }, []);
 
   return count;
