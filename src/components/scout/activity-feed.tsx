@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { activityCopy } from "@/lib/ui/outcome-copy";
+import { groupActivity, type RawActivity } from "@/lib/ui/group-activity";
 
 interface LogEntry {
   timestamp: string;
@@ -10,16 +11,6 @@ interface LogEntry {
   job?: { title?: string; company?: string };
   reason?: string;
   details?: Record<string, unknown>;
-}
-
-// Pull the company off either the structured job or the freeform details so
-// activityCopy can name it ("🎉 Applied to Figma").
-function detailsFor(entry: LogEntry): Record<string, unknown> {
-  return {
-    company: entry.job?.company,
-    title: entry.job?.title,
-    ...entry.details,
-  };
 }
 
 const FEED_SIZE = 12;
@@ -46,8 +37,8 @@ export function ActivityFeed() {
     };
   }, []);
 
-  // Newest first.
-  const entries = logs ? [...logs].reverse() : null;
+  // Newest first, then collapsed into groups.
+  const entries = logs ? groupActivity([...logs].reverse() as RawActivity[]) : null;
 
   return (
     <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-scout">
@@ -81,7 +72,10 @@ export function ActivityFeed() {
               <span className="mt-1.5 size-2 shrink-0 rounded-full bg-primary/60" />
               <div className="min-w-0 flex-1">
                 <p className="text-foreground leading-snug">
-                  {activityCopy(entry.action, detailsFor(entry))}
+                  {activityCopy(entry.action, entry.details)}
+                  {entry.count > 1 && (
+                    <span className="ml-1 text-xs font-bold text-muted-foreground">· ×{entry.count}</span>
+                  )}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {relativeTime(entry.timestamp)}
