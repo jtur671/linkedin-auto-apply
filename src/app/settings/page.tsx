@@ -7,7 +7,7 @@ import { SearchConfigForm } from "@/components/config/search-config-form";
 import { ProfileAnswersForm } from "@/components/config/profile-answers-form";
 import { AIProviderForm } from "@/components/config/ai-provider-form";
 import { ResumeUpload } from "@/components/config/resume-upload";
-import { Settings2, RefreshCw, Sun, Moon, FileText } from "lucide-react";
+import { Settings2, Sun, Moon, FileText } from "lucide-react";
 
 /* ── Appearance pill toggle ─────────────────────────────────────── */
 
