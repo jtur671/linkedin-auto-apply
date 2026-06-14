@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SectionCard } from "./section-card";
 import type { AuditResult, ProfileData } from "@/lib/seo/types";
+import { Sparkles } from "lucide-react";
 
 interface AuditReportProps {
   audit: AuditResult;
@@ -11,9 +12,16 @@ interface AuditReportProps {
 }
 
 function getOverallColor(score: number) {
-  if (score >= 75) return "text-green-400";
-  if (score >= 50) return "text-yellow-400";
-  return "text-red-400";
+  if (score >= 75) return "text-primary";
+  if (score >= 50) return "text-amber-500";
+  return "text-destructive";
+}
+
+function getScoreFriendlyLabel(score: number) {
+  if (score >= 85) return "Looking great! Recruiters should be finding you easily.";
+  if (score >= 70) return "Pretty good — a few tweaks could make you stand out even more.";
+  if (score >= 50) return "There's room to grow. The suggestions below will help you climb.";
+  return "Your profile needs some love — let's fix that together.";
 }
 
 function getSectionContent(section: string, profile: ProfileData): string {
@@ -67,22 +75,30 @@ function getSectionContent(section: string, profile: ProfileData): string {
 
 export function AuditReport({ audit, profileData, keywords }: AuditReportProps) {
   return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader className="pb-3">
+    <div className="space-y-5">
+      {/* Overall score card */}
+      <Card className="rounded-2xl shadow-scout border-border/60">
+        <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
-            <CardTitle>SEO Score</CardTitle>
-            <div className={`text-4xl font-bold tabular-nums ${getOverallColor(audit.overallScore)}`}>
+            <CardTitle className="flex items-center gap-2 text-base font-bold">
+              <Sparkles className="h-4 w-4 text-primary" />
+              Your profile score
+            </CardTitle>
+            <div className={`text-4xl font-extrabold tabular-nums ${getOverallColor(audit.overallScore)}`}>
               {audit.overallScore}
-              <span className="text-lg text-muted-foreground">/100</span>
+              <span className="ml-0.5 text-lg font-semibold text-muted-foreground">/100</span>
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-2">
+          <p className="text-sm font-semibold text-foreground/80">
+            {getScoreFriendlyLabel(audit.overallScore)}
+          </p>
           <p className="text-sm text-muted-foreground">{audit.summary}</p>
         </CardContent>
       </Card>
 
+      {/* Section breakdown */}
       <div className="grid gap-4 md:grid-cols-2">
         {audit.sections.map((section) => (
           <SectionCard

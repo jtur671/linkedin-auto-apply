@@ -45,12 +45,16 @@ export function AuditProgress() {
   const progressPercent = Math.min((elapsed / totalDuration) * 100, 95);
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden rounded-2xl shadow-scout border-primary/20">
+      {/* Progress bar in Scout emerald */}
       <div
-        className="h-1 bg-green-500 transition-all duration-500 ease-out"
+        className="h-1.5 bg-primary transition-all duration-500 ease-out rounded-full"
         style={{ width: `${progressPercent}%` }}
       />
-      <CardContent className="pt-5 pb-5">
+      <CardContent className="pb-5 pt-5">
+        <p className="mb-4 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+          Hang tight — reading your profile
+        </p>
         <div className="space-y-2.5">
           {STEPS.map((step, i) => {
             const isComplete = i < activeStep;
@@ -61,20 +65,20 @@ export function AuditProgress() {
               <div
                 key={i}
                 className={`flex items-center gap-3 text-sm transition-all duration-300 ${
-                  isFuture ? "opacity-30" : "opacity-100"
+                  isFuture ? "opacity-25" : "opacity-100"
                 }`}
               >
                 {isComplete ? (
-                  <CheckCircle className="h-4 w-4 text-green-400 flex-shrink-0" />
+                  <CheckCircle className="h-4 w-4 flex-shrink-0 text-primary" />
                 ) : isActive ? (
-                  <Loader2 className="h-4 w-4 text-green-400 animate-spin flex-shrink-0" />
+                  <Loader2 className="h-4 w-4 flex-shrink-0 animate-spin text-primary" />
                 ) : (
-                  <Circle className="h-4 w-4 text-muted-foreground/30 flex-shrink-0" />
+                  <Circle className="h-4 w-4 flex-shrink-0 text-muted-foreground/30" />
                 )}
                 <span
                   className={
                     isActive
-                      ? "text-foreground font-medium"
+                      ? "font-semibold text-foreground"
                       : isComplete
                         ? "text-muted-foreground"
                         : "text-muted-foreground/50"
@@ -82,7 +86,7 @@ export function AuditProgress() {
                 >
                   {step.label}
                   {isActive && (
-                    <span className="inline-flex ml-1.5">
+                    <span className="ml-1.5 inline-flex">
                       <span className="animate-pulse">.</span>
                       <span className="animate-pulse" style={{ animationDelay: "200ms" }}>.</span>
                       <span className="animate-pulse" style={{ animationDelay: "400ms" }}>.</span>

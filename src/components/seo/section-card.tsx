@@ -14,15 +14,22 @@ interface SectionCardProps {
 }
 
 function getScoreColor(score: number) {
-  if (score >= 75) return "text-green-400";
-  if (score >= 50) return "text-yellow-400";
-  return "text-red-400";
+  if (score >= 75) return "text-primary";
+  if (score >= 50) return "text-amber-500";
+  return "text-destructive";
 }
 
 function getScoreBg(score: number) {
-  if (score >= 75) return "bg-green-500/10 border-green-500/30";
-  if (score >= 50) return "bg-yellow-500/10 border-yellow-500/30";
-  return "bg-red-500/10 border-red-500/30";
+  if (score >= 75) return "border-primary/20 bg-primary/5";
+  if (score >= 50) return "border-amber-400/25 bg-amber-50/60 dark:bg-amber-950/20";
+  return "border-destructive/25 bg-destructive/5";
+}
+
+function getScoreFriendlyLabel(score: number) {
+  if (score >= 85) return "Solid";
+  if (score >= 70) return "Good";
+  if (score >= 50) return "Needs work";
+  return "Needs attention";
 }
 
 export function SectionCard({ section, originalContent, keywords, profileData }: SectionCardProps) {
@@ -60,12 +67,17 @@ export function SectionCard({ section, originalContent, keywords, profileData }:
   const sectionLabel = section.section.charAt(0).toUpperCase() + section.section.slice(1);
 
   return (
-    <Card className={getScoreBg(section.score)}>
-      <CardHeader className="pb-3">
+    <Card className={`rounded-2xl shadow-scout border ${getScoreBg(section.score)}`}>
+      <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base">{sectionLabel}</CardTitle>
-          <div className={`text-2xl font-bold tabular-nums ${getScoreColor(section.score)}`}>
-            {section.score}
+          <CardTitle className="text-base font-bold">{sectionLabel}</CardTitle>
+          <div className="flex flex-col items-end">
+            <span className={`text-2xl font-extrabold tabular-nums leading-none ${getScoreColor(section.score)}`}>
+              {section.score}
+            </span>
+            <span className={`text-[10px] font-semibold uppercase tracking-wide ${getScoreColor(section.score)} opacity-70`}>
+              {getScoreFriendlyLabel(section.score)}
+            </span>
           </div>
         </div>
       </CardHeader>
@@ -74,7 +86,7 @@ export function SectionCard({ section, originalContent, keywords, profileData }:
           <div className="space-y-1.5">
             {section.callouts.map((callout, i) => (
               <div key={i} className="flex items-start gap-2 text-sm">
-                <AlertTriangle className="h-3.5 w-3.5 mt-0.5 text-yellow-400 flex-shrink-0" />
+                <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-amber-500" />
                 <span className="text-muted-foreground">{callout}</span>
               </div>
             ))}
@@ -83,11 +95,11 @@ export function SectionCard({ section, originalContent, keywords, profileData }:
 
         {section.keywordGaps.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
-            <span className="text-xs text-muted-foreground mr-1">Missing:</span>
+            <span className="mr-1 text-xs text-muted-foreground">Missing:</span>
             {section.keywordGaps.map((keyword) => (
               <span
                 key={keyword}
-                className="inline-flex items-center rounded-full bg-red-500/10 px-2 py-0.5 text-xs font-medium text-red-400"
+                className="inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-semibold text-destructive"
               >
                 {keyword}
               </span>
@@ -96,9 +108,9 @@ export function SectionCard({ section, originalContent, keywords, profileData }:
         )}
 
         {section.score === 100 && section.callouts.length === 0 && (
-          <div className="flex items-center gap-2 text-sm text-green-400">
+          <div className="flex items-center gap-2 text-sm font-semibold text-primary">
             <CheckCircle className="h-3.5 w-3.5" />
-            This section is well optimized
+            This section looks great!
           </div>
         )}
 
@@ -107,37 +119,37 @@ export function SectionCard({ section, originalContent, keywords, profileData }:
           size="sm"
           onClick={handleRewrite}
           disabled={loading || !originalContent}
-          className="w-full"
+          className="w-full rounded-xl border-primary/30 text-primary hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring font-semibold"
         >
           {loading ? (
-            <Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" />
+            <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
           ) : showRewrite ? (
-            <ChevronUp className="h-3.5 w-3.5 mr-2" />
+            <ChevronUp className="mr-2 h-3.5 w-3.5" />
           ) : (
-            <ChevronDown className="h-3.5 w-3.5 mr-2" />
+            <ChevronDown className="mr-2 h-3.5 w-3.5" />
           )}
-          {loading ? "Generating Rewrite..." : showRewrite ? "Hide Rewrite" : "Show Rewrite"}
+          {loading ? "Writing a better version…" : showRewrite ? "Hide suggestion" : "Suggest an improvement"}
         </Button>
 
         {showRewrite && rewrite && (
-          <div className="space-y-3 pt-2 border-t border-border/50">
+          <div className="space-y-3 border-t border-border/50 pt-3">
             <div>
-              <p className="text-xs font-medium text-muted-foreground mb-1">Original</p>
-              <p className="text-sm bg-muted/30 rounded-md p-3 whitespace-pre-wrap">{rewrite.original}</p>
+              <p className="mb-1 text-xs font-semibold text-muted-foreground">Before</p>
+              <p className="rounded-xl bg-muted/40 p-3 text-sm whitespace-pre-wrap">{rewrite.original}</p>
             </div>
             <div>
-              <p className="text-xs font-medium text-green-400 mb-1">Optimized</p>
-              <p className="text-sm bg-green-500/5 border border-green-500/20 rounded-md p-3 whitespace-pre-wrap">
+              <p className="mb-1 text-xs font-semibold text-primary">After</p>
+              <p className="rounded-xl border border-primary/20 bg-primary/5 p-3 text-sm whitespace-pre-wrap">
                 {rewrite.rewritten}
               </p>
             </div>
             {rewrite.keywordsAdded.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
-                <span className="text-xs text-muted-foreground mr-1">Keywords added:</span>
+                <span className="mr-1 text-xs text-muted-foreground">Keywords added:</span>
                 {rewrite.keywordsAdded.map((k) => (
                   <span
                     key={k}
-                    className="inline-flex items-center rounded-full bg-green-500/10 px-2 py-0.5 text-xs font-medium text-green-400"
+                    className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary"
                   >
                     {k}
                   </span>
