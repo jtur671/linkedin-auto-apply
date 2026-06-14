@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { MatchBadge } from "@/components/indeed/match-badge";
+import { ScoreRing } from "@/components/scout/score-ring";
 import { RequirementsList } from "@/components/indeed/requirements-list";
 import { SourceChip } from "@/components/scout/source-chip";
 import { outcomeCopy } from "@/lib/ui/outcome-copy";
@@ -107,7 +107,7 @@ export default function JobDetailPage() {
           <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
             {job.title}
           </h1>
-          <MatchBadge score={job.matchScore} />
+          <ScoreRing score={job.matchScore} />
         </div>
         <div className="flex flex-wrap items-center gap-2 text-muted-foreground">
           <SourceChip source={job.source} />

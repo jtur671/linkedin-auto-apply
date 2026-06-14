@@ -2,7 +2,7 @@
 
 import { useState, useEffect, type CSSProperties } from "react";
 import Link from "next/link";
-import { MatchBadge } from "@/components/indeed/match-badge";
+import { ScoreRing } from "@/components/scout/score-ring";
 import { SourceChip } from "@/components/scout/source-chip";
 import { outcomeCopy } from "@/lib/ui/outcome-copy";
 import { cn } from "@/lib/utils";
@@ -233,7 +233,7 @@ function CardHead({ job }: { job: QueueJob }) {
         )}
       </div>
       <div className="shrink-0">
-        <MatchBadge score={job.matchScore} />
+        <ScoreRing score={job.matchScore} />
       </div>
     </div>
   );

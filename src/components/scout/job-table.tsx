@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type CSSProperties } from "react";
 import Link from "next/link";
-import { MatchBadge } from "@/components/indeed/match-badge";
+import { ScoreRing } from "@/components/scout/score-ring";
 import { SourceChip } from "@/components/scout/source-chip";
 import { cn } from "@/lib/utils";
 
@@ -84,7 +84,7 @@ export function JobTable({ jobs }: { jobs: FoundJob[] }) {
                 </div>
               </div>
               <div className="flex shrink-0 flex-col items-end gap-2.5">
-                <MatchBadge score={job.matchScore} />
+                <ScoreRing score={job.matchScore} size={36} />
                 <a
                   href={job.applyUrl ?? job.url}
                   target="_blank"

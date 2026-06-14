@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { StatChip } from "@/components/scout/stat-chip";
 import { SourceChip } from "@/components/scout/source-chip";
-import { MatchBadge } from "@/components/indeed/match-badge";
+import { ScoreRing } from "@/components/scout/score-ring";
 import { JobTable, type FoundJob } from "@/components/scout/job-table";
 import { outcomeCopy } from "@/lib/ui/outcome-copy";
 import { cn } from "@/lib/utils";
@@ -615,7 +615,7 @@ function AppliedTab({
               </p>
             </div>
             <div className="shrink-0">
-              {job.matchScore !== null && <MatchBadge score={job.matchScore} />}
+              <ScoreRing score={job.matchScore} size={36} />
             </div>
           </div>
         </article>
@@ -687,7 +687,7 @@ function PassedTab({
               </p>
             </div>
             <div className="flex shrink-0 flex-col items-end gap-2.5">
-              {job.matchScore !== null && <MatchBadge score={job.matchScore} />}
+              <ScoreRing score={job.matchScore} size={36} />
               <button
                 onClick={() =>
                   job.origin === "discovered"
