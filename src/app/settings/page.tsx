@@ -120,16 +120,6 @@ export default function SettingsPage() {
             </p>
           </div>
         </div>
-        <Link
-          href="/onboarding"
-          className="shrink-0 flex items-center gap-1.5 rounded-full border border-border bg-muted
-            px-4 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground
-            hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2
-            focus-visible:ring-primary"
-        >
-          <RefreshCw className="h-3.5 w-3.5" />
-          Re-run setup
-        </Link>
       </div>
 
       {/* ── Appearance ───────────────────────────────────────────── */}
