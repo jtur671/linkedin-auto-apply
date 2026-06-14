@@ -146,7 +146,7 @@ export function StepJobSearch({ onNext, onBack }: StepJobSearchProps) {
 
   async function handleSubmit() {
     if (selectedTitles.size === 0) {
-      setError("Please select at least one job title.");
+      setError("Pick at least one job title so Scout knows what to look for.");
       return;
     }
     setError(null);
@@ -171,7 +171,7 @@ export function StepJobSearch({ onNext, onBack }: StepJobSearchProps) {
       );
       onNext();
     } catch {
-      setError("Failed to save job search config. Please try again.");
+      setError("Couldn't save your search preferences. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -180,9 +180,12 @@ export function StepJobSearch({ onNext, onBack }: StepJobSearchProps) {
   return (
     <div className="flex flex-col gap-6">
       <div className="space-y-1">
-        <h2 className="text-2xl font-bold">What roles are you looking for?</h2>
-        <p className="text-muted-foreground text-sm">
-          Select all job titles you want to apply for.
+        <h2 className="text-2xl font-extrabold tracking-tight text-foreground">
+          What you&apos;re looking for
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Choose the roles you want Scout to search for — pick as many as you
+          like.
         </p>
       </div>
 
@@ -193,10 +196,10 @@ export function StepJobSearch({ onNext, onBack }: StepJobSearchProps) {
             key={cat.label}
             onClick={() => setActiveCategory(i)}
             className={cn(
-              "rounded-full px-3 py-1 text-xs font-medium border transition-colors",
+              "rounded-full px-3.5 py-1.5 text-xs font-semibold border transition-all duration-150",
               activeCategory === i
-                ? "bg-primary text-primary-foreground border-primary"
-                : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"
+                ? "bg-primary text-primary-foreground border-primary shadow-scout"
+                : "border-border text-muted-foreground hover:border-primary/60 hover:text-foreground"
             )}
           >
             {cat.label}
@@ -213,10 +216,10 @@ export function StepJobSearch({ onNext, onBack }: StepJobSearchProps) {
               key={title}
               variant={isSelected ? "default" : "outline"}
               className={cn(
-                "cursor-pointer select-none text-xs py-1 px-3 transition-colors",
+                "cursor-pointer select-none text-xs py-1.5 px-3 rounded-full transition-all duration-150",
                 isSelected
-                  ? "bg-primary text-primary-foreground hover:bg-primary/80"
-                  : "hover:border-primary/50 hover:text-foreground"
+                  ? "bg-primary text-primary-foreground shadow-scout hover:bg-primary/80"
+                  : "hover:border-primary/60 hover:text-foreground"
               )}
               onClick={() => toggleTitle(title)}
             >
@@ -229,27 +232,37 @@ export function StepJobSearch({ onNext, onBack }: StepJobSearchProps) {
       {/* Custom title input */}
       <div className="flex gap-2">
         <Input
-          placeholder="Add custom job title..."
+          placeholder="Add a custom job title…"
           value={customTitle}
           onChange={(e) => setCustomTitle(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addCustomTitle())}
+          onKeyDown={(e) =>
+            e.key === "Enter" && (e.preventDefault(), addCustomTitle())
+          }
+          className="rounded-xl"
         />
-        <Button type="button" variant="outline" size="icon" onClick={addCustomTitle}>
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          onClick={addCustomTitle}
+          className="rounded-xl shrink-0"
+        >
           <Plus className="h-4 w-4" />
         </Button>
       </div>
 
       {/* Selected count */}
       {selectedTitles.size > 0 && (
-        <p className="text-sm text-primary font-medium">
-          {selectedTitles.size} job title{selectedTitles.size !== 1 ? "s" : ""} selected
+        <p className="text-sm text-primary font-semibold">
+          {selectedTitles.size} role
+          {selectedTitles.size !== 1 ? "s" : ""} selected
         </p>
       )}
 
       {/* Filters */}
-      <div className="space-y-4 border-t pt-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-          Search Filters
+      <div className="space-y-4 border-t border-border pt-4">
+        <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+          Refine the search
         </h3>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -260,13 +273,19 @@ export function StepJobSearch({ onNext, onBack }: StepJobSearchProps) {
               placeholder="e.g. New York, Remote"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
+              className="rounded-xl"
             />
           </div>
 
           <div className="space-y-2">
             <Label>Remote preference</Label>
-            <Select value={remote} onValueChange={(v) => { if (v !== null) setRemote(v); }}>
-              <SelectTrigger>
+            <Select
+              value={remote}
+              onValueChange={(v) => {
+                if (v !== null) setRemote(v);
+              }}
+            >
+              <SelectTrigger className="rounded-xl">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -280,8 +299,13 @@ export function StepJobSearch({ onNext, onBack }: StepJobSearchProps) {
 
           <div className="space-y-2">
             <Label>Experience level</Label>
-            <Select value={experience} onValueChange={(v) => { if (v !== null) setExperience(v); }}>
-              <SelectTrigger>
+            <Select
+              value={experience}
+              onValueChange={(v) => {
+                if (v !== null) setExperience(v);
+              }}
+            >
+              <SelectTrigger className="rounded-xl">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -294,8 +318,13 @@ export function StepJobSearch({ onNext, onBack }: StepJobSearchProps) {
 
           <div className="space-y-2">
             <Label>Date posted</Label>
-            <Select value={datePosted} onValueChange={(v) => { if (v !== null) setDatePosted(v); }}>
-              <SelectTrigger>
+            <Select
+              value={datePosted}
+              onValueChange={(v) => {
+                if (v !== null) setDatePosted(v);
+              }}
+            >
+              <SelectTrigger className="rounded-xl">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -309,15 +338,27 @@ export function StepJobSearch({ onNext, onBack }: StepJobSearchProps) {
         </div>
       </div>
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && (
+        <p className="text-sm text-destructive font-medium">{error}</p>
+      )}
 
       <div className="flex gap-3 pt-2">
-        <Button type="button" variant="outline" className="flex-1" onClick={onBack} disabled={loading}>
+        <Button
+          type="button"
+          variant="outline"
+          className="flex-1 rounded-full"
+          onClick={onBack}
+          disabled={loading}
+        >
           Back
         </Button>
-        <Button className="flex-1" onClick={handleSubmit} disabled={loading}>
+        <Button
+          className="flex-1 rounded-full font-bold shadow-scout"
+          onClick={handleSubmit}
+          disabled={loading}
+        >
           {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {loading ? "Saving..." : "Continue"}
+          {loading ? "Saving…" : "Continue"}
         </Button>
       </div>
     </div>

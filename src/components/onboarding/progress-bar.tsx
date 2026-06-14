@@ -3,7 +3,13 @@
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const STEPS = ["Welcome", "LinkedIn", "Job Search", "Profile", "AI Setup"];
+const STEPS = [
+  "Welcome",
+  "Your LinkedIn login",
+  "What you're looking for",
+  "Questions employers ask",
+  "AI setup",
+];
 
 interface ProgressBarProps {
   currentStep: number;
@@ -19,23 +25,30 @@ export function ProgressBar({ currentStep }: ProgressBarProps) {
 
         return (
           <div key={label} className="flex items-center">
-            <div className="flex flex-col items-center gap-1">
+            <div className="flex flex-col items-center gap-1.5">
               <div
                 className={cn(
-                  "flex h-9 w-9 items-center justify-center rounded-full border-2 text-sm font-semibold transition-colors",
-                  isCompleted && "border-primary bg-primary text-primary-foreground",
-                  isCurrent && "border-primary bg-background text-primary",
-                  isFuture && "border-muted-foreground/30 bg-background text-muted-foreground/50"
+                  "flex h-9 w-9 items-center justify-center rounded-full border-2 text-sm font-bold transition-all duration-200",
+                  isCompleted &&
+                    "border-primary bg-primary text-primary-foreground shadow-scout",
+                  isCurrent &&
+                    "border-primary bg-primary/10 text-primary ring-4 ring-primary/20",
+                  isFuture &&
+                    "border-border bg-background text-muted-foreground/40"
                 )}
               >
-                {isCompleted ? <Check className="h-4 w-4" /> : <span>{index + 1}</span>}
+                {isCompleted ? (
+                  <Check className="h-4 w-4" strokeWidth={3} />
+                ) : (
+                  <span>{index + 1}</span>
+                )}
               </div>
               <span
                 className={cn(
-                  "text-xs font-medium",
+                  "text-xs font-semibold max-w-[72px] text-center leading-tight",
                   isCompleted && "text-primary",
                   isCurrent && "text-foreground",
-                  isFuture && "text-muted-foreground/50"
+                  isFuture && "text-muted-foreground/40"
                 )}
               >
                 {label}
@@ -44,8 +57,8 @@ export function ProgressBar({ currentStep }: ProgressBarProps) {
             {index < STEPS.length - 1 && (
               <div
                 className={cn(
-                  "mx-2 mb-5 h-0.5 w-16",
-                  index < currentStep ? "bg-primary" : "bg-muted-foreground/20"
+                  "mx-1.5 mb-6 h-0.5 w-10 rounded-full transition-colors duration-300",
+                  index < currentStep ? "bg-primary" : "bg-border"
                 )}
               />
             )}

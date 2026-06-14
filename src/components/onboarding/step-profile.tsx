@@ -42,7 +42,7 @@ function RadioGroup({
 }) {
   return (
     <div className="flex items-center justify-between gap-4">
-      <span className="text-sm">{label}</span>
+      <span className="text-sm text-foreground">{label}</span>
       <div className="flex gap-2">
         {(["Yes", "No"] as const).map((opt) => (
           <button
@@ -50,10 +50,10 @@ function RadioGroup({
             type="button"
             onClick={() => onChange(value === opt ? "" : opt)}
             className={cn(
-              "rounded-full px-3 py-1 text-xs font-medium border transition-colors",
+              "rounded-full px-3.5 py-1 text-xs font-semibold border transition-all duration-150",
               value === opt
-                ? "bg-primary text-primary-foreground border-primary"
-                : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"
+                ? "bg-primary text-primary-foreground border-primary shadow-scout"
+                : "border-border text-muted-foreground hover:border-primary/60 hover:text-foreground"
             )}
           >
             {opt}
@@ -64,7 +64,11 @@ function RadioGroup({
   );
 }
 
-export function StepProfile({ onComplete, onBack, email: initialEmail = "" }: StepProfileProps) {
+export function StepProfile({
+  onComplete,
+  onBack,
+  email: initialEmail = "",
+}: StepProfileProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -120,7 +124,7 @@ export function StepProfile({ onComplete, onBack, email: initialEmail = "" }: St
       );
       onComplete();
     } catch {
-      setError("Failed to save profile answers. Please try again.");
+      setError("Couldn't save your answers. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -129,28 +133,32 @@ export function StepProfile({ onComplete, onBack, email: initialEmail = "" }: St
   return (
     <div className="flex flex-col gap-6">
       <div className="space-y-1">
-        <h2 className="text-2xl font-bold">Set Up Your Profile Answers</h2>
-        <p className="text-muted-foreground text-sm">
-          These answers auto-fill Easy Apply forms so you don&apos;t have to.
+        <h2 className="text-2xl font-extrabold tracking-tight text-foreground">
+          Questions employers ask
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Scout pre-fills these on every application — you only have to answer
+          them once.
         </p>
       </div>
 
       {/* Contact Info */}
       <section className="space-y-3">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Contact Info
+        <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+          Contact info
         </h3>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <Label htmlFor="phone">Phone number</Label>
             <Input
               id="phone"
               placeholder="+1 (555) 000-0000"
               value={form.phone}
               onChange={(e) => update("phone", e.target.value)}
+              className="rounded-xl"
             />
           </div>
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <Label htmlFor="email">Email address</Label>
             <Input
               id="email"
@@ -158,6 +166,7 @@ export function StepProfile({ onComplete, onBack, email: initialEmail = "" }: St
               placeholder="you@example.com"
               value={form.email}
               onChange={(e) => update("email", e.target.value)}
+              className="rounded-xl"
             />
           </div>
         </div>
@@ -165,35 +174,38 @@ export function StepProfile({ onComplete, onBack, email: initialEmail = "" }: St
 
       {/* Online Profiles */}
       <section className="space-y-3">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Online Profiles
+        <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+          Online profiles
         </h3>
         <div className="space-y-3">
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <Label htmlFor="website">Website / Portfolio URL</Label>
             <Input
               id="website"
               placeholder="https://yoursite.com"
               value={form.website}
               onChange={(e) => update("website", e.target.value)}
+              className="rounded-xl"
             />
           </div>
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <Label htmlFor="linkedin">LinkedIn URL</Label>
             <Input
               id="linkedin"
               placeholder="https://linkedin.com/in/yourname"
               value={form.linkedin}
               onChange={(e) => update("linkedin", e.target.value)}
+              className="rounded-xl"
             />
           </div>
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <Label htmlFor="github">GitHub URL</Label>
             <Input
               id="github"
               placeholder="https://github.com/yourname"
               value={form.github}
               onChange={(e) => update("github", e.target.value)}
+              className="rounded-xl"
             />
           </div>
         </div>
@@ -201,11 +213,11 @@ export function StepProfile({ onComplete, onBack, email: initialEmail = "" }: St
 
       {/* Experience */}
       <section className="space-y-3">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
           Experience
         </h3>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <Label htmlFor="yearsExp">Years of experience</Label>
             <Input
               id="yearsExp"
@@ -214,9 +226,10 @@ export function StepProfile({ onComplete, onBack, email: initialEmail = "" }: St
               placeholder="e.g. 5"
               value={form.yearsExperience}
               onChange={(e) => update("yearsExperience", e.target.value)}
+              className="rounded-xl"
             />
           </div>
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <Label htmlFor="yearsSpec">Years in current specialty</Label>
             <Input
               id="yearsSpec"
@@ -225,6 +238,7 @@ export function StepProfile({ onComplete, onBack, email: initialEmail = "" }: St
               placeholder="e.g. 3"
               value={form.yearsSpecialty}
               onChange={(e) => update("yearsSpecialty", e.target.value)}
+              className="rounded-xl"
             />
           </div>
         </div>
@@ -232,8 +246,8 @@ export function StepProfile({ onComplete, onBack, email: initialEmail = "" }: St
 
       {/* Work Authorization */}
       <section className="space-y-3">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Work Authorization
+        <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+          Work authorization
         </h3>
         <div className="space-y-3">
           <RadioGroup
@@ -251,42 +265,54 @@ export function StepProfile({ onComplete, onBack, email: initialEmail = "" }: St
 
       {/* Willingness */}
       <section className="space-y-3">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Willingness
+        <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+          Willing to…
         </h3>
         <div className="space-y-3">
           <RadioGroup
-            label="Background check"
+            label="Pass a background check"
             value={form.backgroundCheck}
             onChange={(v) => update("backgroundCheck", v)}
           />
           <RadioGroup
-            label="Drug test"
+            label="Pass a drug test"
             value={form.drugTest}
             onChange={(v) => update("drugTest", v)}
           />
           <RadioGroup
-            label="Willing to commute"
+            label="Commute to the office"
             value={form.commute}
             onChange={(v) => update("commute", v)}
           />
           <RadioGroup
-            label="Open to W2 contract"
+            label="Work on a W2 contract"
             value={form.w2Contract}
             onChange={(v) => update("w2Contract", v)}
           />
         </div>
       </section>
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && (
+        <p className="text-sm text-destructive font-medium">{error}</p>
+      )}
 
       <div className="flex gap-3 pt-2">
-        <Button type="button" variant="outline" className="flex-1" onClick={onBack} disabled={loading}>
+        <Button
+          type="button"
+          variant="outline"
+          className="flex-1 rounded-full"
+          onClick={onBack}
+          disabled={loading}
+        >
           Back
         </Button>
-        <Button className="flex-1" onClick={handleSubmit} disabled={loading}>
+        <Button
+          className="flex-1 rounded-full font-bold shadow-scout"
+          onClick={handleSubmit}
+          disabled={loading}
+        >
           {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {loading ? "Saving..." : "Finish Setup"}
+          {loading ? "Saving…" : "Continue"}
         </Button>
       </div>
     </div>

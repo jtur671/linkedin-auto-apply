@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
 import { Lock, Loader2 } from "lucide-react";
 
 interface StepCredentialsProps {
@@ -37,13 +36,13 @@ export function StepCredentials({ onNext, onBack }: StepCredentialsProps) {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data.error ?? "Failed to save credentials. Please try again.");
+        setError(data.error ?? "Couldn't save your credentials. Want to try again?");
         return;
       }
 
       onNext(email.trim());
     } catch {
-      setError("Network error. Please try again.");
+      setError("Network hiccup — please try again.");
     } finally {
       setLoading(false);
     }
@@ -52,9 +51,12 @@ export function StepCredentials({ onNext, onBack }: StepCredentialsProps) {
   return (
     <div className="flex flex-col gap-6">
       <div className="space-y-1">
-        <h2 className="text-2xl font-bold">Connect Your LinkedIn</h2>
-        <p className="text-muted-foreground text-sm">
-          Enter your LinkedIn credentials to get started.
+        <h2 className="text-2xl font-extrabold tracking-tight text-foreground">
+          Your LinkedIn login
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Scout uses this to apply to jobs on your behalf. Your password is
+          encrypted and never leaves your machine.
         </p>
       </div>
 
@@ -69,6 +71,7 @@ export function StepCredentials({ onNext, onBack }: StepCredentialsProps) {
             onChange={(e) => setEmail(e.target.value)}
             autoComplete="email"
             disabled={loading}
+            className="rounded-xl"
           />
         </div>
 
@@ -82,31 +85,40 @@ export function StepCredentials({ onNext, onBack }: StepCredentialsProps) {
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
             disabled={loading}
+            className="rounded-xl"
           />
         </div>
 
         {error && (
-          <p className="text-sm text-destructive">{error}</p>
+          <p className="text-sm text-destructive font-medium">{error}</p>
         )}
 
-        <Card className="border-muted bg-muted/30">
-          <CardContent className="py-3 px-4">
-            <div className="flex items-start gap-3">
-              <Lock className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-              <p className="text-xs text-muted-foreground">
-                Your credentials are encrypted with AES-256 and stored locally. They never leave your machine.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Security note */}
+        <div className="flex items-start gap-3 rounded-2xl border bg-muted/50 px-4 py-3 shadow-scout">
+          <Lock className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Encrypted with AES-256 and stored only on your device — Scout never
+            sends your credentials anywhere.
+          </p>
+        </div>
 
         <div className="flex gap-3 pt-2">
-          <Button type="button" variant="outline" className="flex-1" onClick={onBack} disabled={loading}>
+          <Button
+            type="button"
+            variant="outline"
+            className="flex-1 rounded-full"
+            onClick={onBack}
+            disabled={loading}
+          >
             Back
           </Button>
-          <Button type="submit" className="flex-1" disabled={loading}>
+          <Button
+            type="submit"
+            className="flex-1 rounded-full font-bold shadow-scout"
+            disabled={loading}
+          >
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {loading ? "Saving..." : "Continue"}
+            {loading ? "Saving…" : "Continue"}
           </Button>
         </div>
       </form>
