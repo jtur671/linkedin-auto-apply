@@ -68,3 +68,7 @@ uploads/
 
 # Visual brainstorm companion
 .superpowers/
+
+# local scratch / personal, never commit
+.dashrc.json
+auth_linkedin.py
