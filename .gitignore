@@ -45,6 +45,7 @@ cookies/
 logs/
 !src/app/api/logs/
 !src/app/logs/
+!src/app/settings/logs/
 !src/components/logs/
 screenshots/
 !src/lib/automation/screenshot.ts
